@@ -9,13 +9,12 @@ library(httr)
 library(plyr)
 library(dplyr)
 
-
 ## create empty data frame with Year column
 CoPlc=data.frame('Year'=c(1975:2015))
 
 ## Steps for adding data columns: 
 ## 1) read in data
-## 2) format to annual estimates (2 col df with cols=year,spEstimate)
+## 2) format to annual estimates (2 column dataframe with cols=Year,spEstimate)
 ## 3) merge with CoPlc dataframe:   CoPlc=merge(CoPlc,newData,all.x=T)  # rename new df CoPlc
 
 # PWS wild Pink Salmon SSB:
