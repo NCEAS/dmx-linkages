@@ -1,5 +1,5 @@
 ################################################################
-## Communities of Place data compilation
+## Communities of Practice data compilation
 ## created 24 Aug 2015
 ## This will replace the spreadsheet started on Google Drive.
 ################################################################
