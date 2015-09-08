@@ -10,6 +10,8 @@ library(plyr)
 library(dplyr)
 library(XML)
 library(curl)
+library(rvest)
+library(tidyr)
 
 
 ## create empty data frame with Year column
@@ -144,18 +146,123 @@ CoPrct <- merge(CoPrct,NPI,all.x=T)
 ###############################################################################################
 ###  Multivariate ENSO Index (MEI): 
 URL_enso <- "http://www.esrl.noaa.gov/psd/enso/mei/table.html"
-ensoGet <- htmlParse(URL_enso)
-enso1 <- getNodeSet(ensoGet, "//pre")
-enso <- read.table(file=textConnection(xmlValue(enso1)),stringsAsFactors=FALSE)
 
+# get the html pre element text
+enso1 <- html(URL_enso)
+enso_content <- enso1 %>% 
+                html_node("pre") %>%
+                html_text()
+# loop through the lines until finding the line starting with "YEAR" and get the column headers
+enso_lines <- unlist(strsplit(enso_content, split="\n"))  ## split the string at the new lines
+i=1
+header_line <- strsplit(enso_lines[i], split="\t")
+while (grepl("YEAR", header_line) == F) {header_line <- strsplit(enso_lines[i], split=" +")
+                                         i=i+1
+                                         }
+# loop through the table to gather the data
+new_line <- strsplit(enso_lines[i], split="\t")
+data_lines <- unlist(strsplit(enso_lines[i], split="\t"))
+while (grepl("2015", new_line) == F) {new_line <- data.frame(strsplit(enso_lines[i+1], split="\t"))
+                                      #new_line <- data.frame(new_line)
+                                      data_lines <- rbind.fill(data_lines, unlist(new_line))
+                                      i=i+1
+                                      }
+
+enso <- rbind.data.frame(data_lines) # create the dataframe
+names(enso) <- matrix(header_line[[1]]) # assign the column name
+enso[,c(2:13)] <- as.numeric(as.character(unlist(enso[,c(2:13)])))# make data columns numeric
 head(enso)
+#
+ENSO_annual <- enso %>%
+                    rename(Year=YEAR) %>% # rename data columns
+                    filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
+                    gather(Months, ENSO_anul_mn, -Year) %>% # reshapes data to be column-wise
+                #    filter(!is.na(SeaLevelPressure_hPa),
+                #                  SeaLevelPressure_hPa != -999.00) %>% # remove NA values, and -999 values which are NAs
+                    group_by(Year) %>%
+                #    summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
+                    ungroup()  # 
 
-enso_df <- data.frame(enso[11:864,])
+
+
+
+
 
 
 
 # The readHTMLTable() help page provides an example of reading a plain text table out of an 
 # HTML <pre> element using htmlParse(), getNodeSet(), textConnection() and read.table() 
+
+##############################################################################################
+###  Pacific Decadal Oscillation Index (PDO): 
+URL_pdo <- "http://jisao.washington.edu/pdo/PDO.latest"
+
+# get the html pre element text
+pdo1 <- html(URL_pdo)
+pdo_content <- pdo1 %>% 
+               html_node("pre") %>%
+               html_text()
+
+
+
+
+
+
+
+
+
+
+
+
+
+# loop through the lines until finding the line starting with "YEAR" and get the column headers
+pdo_lines <- unlist(strsplit(pdo_content, split="\n"))  ## split the string at the new lines
+i=1
+header_line <- strsplit(enso_lines[i], split="\t")
+while (grepl("YEAR", header_line) == F) {header_line <- strsplit(enso_lines[i],split="+")
+                                         i=i+1
+                                         }
+# loop through the table to gather the data
+new_line <- strsplit(enso_lines[i], split="\t")
+data_lines <- unlist(strsplit(enso_lines[i], split="\t"))
+while (grepl("2015", new_line) == F) {new_line <- strsplit(enso_lines[i+1], split="\t")
+                                      data_lines <- rbind(data_lines, unlist(new_line))
+                                      i=i+1
+                                      }
+
+enso <- rbind.data.frame(data_lines) # create the dataframe
+names(enso) <- matrix(header_line[[1]]) # assign the column name
+head(enso)
+#
+
+
+
+
+
+
+
+###############################################################################################
+###  Water Temperature: 
+URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
+TGet <- GET(URL_T)
+T1 <- content(TGet, as='text')
+Tmps <- read.csv(file=textConnection(T1),stringsAsFactors=FALSE)
+head(Tmps)
+
+URL_Ts <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.32.1"
+TsGet <- GET(URL_Ts)
+Ts1 <- content(TsGet, as='text')
+TmpSams <- read.csv(file=textConnection(Ts1),stringsAsFactors=FALSE)
+head(TmpSams)
+
+
+
+
+
+
+
+
+
 
 
 
