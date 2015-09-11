@@ -12,6 +12,7 @@ library(XML)
 library(curl)
 library(rvest)
 library(tidyr)
+library(data.table)
 
 
 ## create empty data frame with Year column
@@ -49,11 +50,12 @@ Eu$Year <- sapply(DY, function(x) x[1]) # create Sample Year column
 head(Eu)
 
 Euph <- Eu %>% 
-        filter(!is.na(biomass)) 
-        filter(specimen %in% c(Thyanoessa,Euphausiacea) %>%  # select just Euphausids
+        filter(!is.na(biomass)) %>%
+        filter(specimen %in% "Euphausiacea") %>%  # select just Euphausids
         group_by(Year) %>%
         summarise(Euph_mn_bmss_g_m3=mean(biomass)) %>%
-        ungroup() 
+        ungroup() %>%
+        select(Year, Euph_mn_bmss_g_m3)
 #
 CoPrct <- merge(CoPrct,Euph,all.x=T)
 
@@ -160,7 +162,21 @@ enso_content <- enso1 %>%        # enso_content is a character vector
 
 ############################
 
+dt <- data.table(df)
+dt.out <- dt[, list(Probe.Id = Probe.Id, 
+          Gene.Id = unlist(strsplit(Gene.Id, "///")), 
+          Score.d = Score.d), by=1:nrow(dt)]
 
+e_c <- data.table(enso_content)
+
+
+
+
+
+
+#DF <- data.frame(do.call(rbind, strsplit(a, "-", fixed=TRUE)))
+
+e_l <- data.frame(strsplit(enso_content, split="\n"))
 
 
 # loop through the lines until finding the line starting with "YEAR" and get the column headers
@@ -258,23 +274,24 @@ pdo_content <- pdo1 %>%
 URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
 TGet <- GET(URL_T)
 T1 <- content(TGet, as='text')
-Tmps <- read.csv(file=textConnection(T1),stringsAsFactors=FALSE)
+Tmps <- read.csv(file=textConnection(T1),stringsAsFactors=FALSE,strip.white=TRUE)
 head(Tmps)
 
-URL_Ts <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.32.1"
+URL_Ts <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.32.2"
 TsGet <- GET(URL_Ts)
 Ts1 <- content(TsGet, as='text')
-TmpSams <- read.csv(file=textConnection(Ts1),stringsAsFactors=FALSE)
+TmpSams <- read.csv(file=textConnection(Ts1),stringsAsFactors=FALSE,strip.white=TRUE)
 head(TmpSams)
 #
 Temps <- merge(Tmps, TmpSams, all.x=TRUE)  # merge sample information with data values
 head(Temps)
 
-#missing_date <- filter(Temps, is.na(dateTime))  # selects data with missing dates
-#miss_cID <- unique(missing_date$cruiseID) # selects the cruise IDs for which sample info is missing
 ############################################
-### NOTE : Need to deal with missing sample info
+### NOTE : Need to deal with missing sample info for cruiseID TXS09, consecStationNum 3
 ############################################
+# missing_date <- filter(Temps, is.na(dateTime))  # selects data with missing dates
+# miss_cID <- unique(missing_date$cruiseID) # selects the cruise IDs for which sample info is missing
+
 
 SST <- Temps %>%
              mutate(Year=substring(dateTime,1,4)) %>%   # creates Year column
