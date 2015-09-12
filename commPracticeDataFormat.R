@@ -13,6 +13,8 @@ library(curl)
 library(rvest)
 library(tidyr)
 library(data.table)
+library(stringr)
+
 
 
 ## create empty data frame with Year column
@@ -144,132 +146,6 @@ NPI <- npi %>%
 CoPrct <- merge(CoPrct,NPI,all.x=T) 
 
 ###############################################################################################
-###  Multivariate ENSO Index (MEI): 
-URL_enso <- "http://www.esrl.noaa.gov/psd/enso/mei/table.html"
-
-# get the html pre element text
-enso1 <- html(URL_enso)
-enso_content <- enso1 %>%        # enso_content is a character vector
-                html_node("pre") %>%
-                html_text()
-                
-
-
-###########################
-
-# TRY CONVERTING EVERYTHING TO SOMETHING OTHER THAN STRSPLIT(), SO THAT I DON'T HAVE TO DEAL
-# WITH LISTS AT ALL!!!!!!!!!!!!!!!!
-
-############################
-
-dt <- data.table(df)
-dt.out <- dt[, list(Probe.Id = Probe.Id, 
-          Gene.Id = unlist(strsplit(Gene.Id, "///")), 
-          Score.d = Score.d), by=1:nrow(dt)]
-
-e_c <- data.table(enso_content)
-
-
-
-
-
-
-#DF <- data.frame(do.call(rbind, strsplit(a, "-", fixed=TRUE)))
-
-e_l <- data.frame(strsplit(enso_content, split="\n"))
-
-
-# loop through the lines until finding the line starting with "YEAR" and get the column headers
-enso_lines <- unlist(strsplit(enso_content, split="\n"))  ## split the string at the new lines
-i=1
-header_line <- strsplit(enso_lines[i], split="\t")
-while (grepl("YEAR", header_line) == F) {header_line <- strsplit(enso_lines[i], split=" +")
-                                         i=i+1
-                                         }
-
-#while (grepl("YEAR", header_line) == F) {header_line <- data.frame(do.call(rbind, strsplit(
-#                                                                   enso_lines[i], split=" +")))
-#                                         i=i+1
-#                                         }
-
-# get most recent year from first line of html (last update: Day Month Year)
-lst_updt <- grep("last update:", enso_lines, value=TRUE)  # selects the line with the date of last update
-crnt_Yr <- # selects the current year from this line
-
-# loop through the table to gather the data
-new_line <- strsplit(enso_lines[i], split="\t")
-data_lines <- unlist(strsplit(enso_lines[i], split="\t"))
-while (grepl("crnt_Yr", new_line) == F) {new_line <- strsplit(enso_lines[i+1], split="\t")
-                                     # new_line <- as.data.frame(new_line)
-                                     # data_lines <- as.data.frame(data_lines)
-                                     # data_lines <- rbind.fill(as.data.frame(data_lines), 
-                                     #                          as.data.frame(unlist(new_line)))
-                                     # data_lines <- do.call("rbind", lapply(
-                                     #                                c(data_lines, unlist(new_line)),
-                                     #                                data.frame))
-                                     # data_lines <- rbind.fill(as.data.frame(
-                                     #                          matrix(data_lines, unlist(new_line)),
-                                     #                          stringsAsFactors=FALSE))
-                                     # data_lines <- bind_rows(data_lines, unlist(new_line))
-                                     # data_lines <- data.frame(do.call(rbind, data_lines, unlist(new_line)))
-                                     
-                                      data_lines <- rbind(data_lines, unlist(new_line))
-                                      i=i+1
-                                      }
-
-
-# # DF <- data.frame(do.call(rbind, strsplit(a, "-", fixed=TRUE)))
-
-
-
-enso <- rbind.data.frame(data_lines) # create the dataframe
-names(enso) <- matrix(header_line[[1]]) # assign the column name
-enso[,c(2:13)] <- as.numeric(as.character(unlist(enso[,c(2:13)])))# make data columns numeric
-head(enso)
-#
-ENSO_annual <- enso %>%
-                    rename(Year=YEAR) %>% # rename data columns
-                    filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
-                    gather(Months, ENSO_anul_mn, -Year) %>% # reshapes data to be column-wise
-                #    filter(!is.na(SeaLevelPressure_hPa),
-                #                  SeaLevelPressure_hPa != -999.00) %>% # remove NA values, and -999 values which are NAs
-                    group_by(Year) %>%
-                #    summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
-                    ungroup()  # 
-
-
-
-
-
-
-
-
-# The readHTMLTable() help page provides an example of reading a plain text table out of an 
-# HTML <pre> element using htmlParse(), getNodeSet(), textConnection() and read.table() 
-
-##############################################################################################
-###  Pacific Decadal Oscillation Index (PDO): 
-URL_pdo <- "http://jisao.washington.edu/pdo/PDO.latest"
-
-# get the html pre element text
-pdo1 <- html(URL_pdo)
-pdo_content <- pdo1 %>% 
-               html_node("pre") %>%
-               html_text()
-
-
-
-
-
-# Have to figure out how to parse this text
-
-
-
-
-
-
-
-###############################################################################################
 ###  Water Temperature (SST): 
 URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
 TGet <- GET(URL_T)
@@ -304,19 +180,6 @@ SST <- Temps %>%
 #
 CoPrct <- merge(CoPrct,SST,all.x=T)
   
-##############################################################################################
-# North Pacific Gyre Oscillation (NPGO): 
-URL_npgo <- "http://www.o3d.org/npgo/npgo.php"
-
-# get the html pre element text
-npgo1 <- html(URL_npgo)
-npgo_content <- npgo1 %>% 
-                html_node("pre") %>%
-                html_text()
-
-### Have to figure out how to parse this into a data frame
-
-
 
 ##############################################################################################
 # Winds (annual and winter) : from National Buoy Data Center
@@ -627,10 +490,87 @@ Wind_Winter <- Buoys_all %>%
 #
 CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)  # Annual mean wind
 CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)  # Winter mean wind
-                     
+
+                  
 ###############################################################################################
+###  Multivariate ENSO Index (MEI): 
+URL_enso <- "http://www.esrl.noaa.gov/psd/enso/mei/table.html"
+enso_pre <- xpathSApply(content(GET(URL_enso)),"/html/body/pre", xmlValue)
+enso_cols <- scan(textConnection(enso_pre), skip=10, nlines=1, what=character()) # get header row
+enso <- read.csv(file=textConnection(enso_pre), skip=11, stringsAsFactors=F, sep="\t", 
+                 header=FALSE, col.names=enso_cols)
+enso_df <- enso[1:66,]  # removes the text at bottom of file
+#
+ENSO_annual <- enso_df %>%
+                    rename(Year=YEAR) %>% # rename data columns
+                    filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
+                    gather(Months, ENSO, -Year) %>% # reshapes data to be column-wise
+                    filter(!is.na(ENSO)) %>% # remove NA values
+                    group_by(Year) %>%
+                    summarise(ENSO_anul_mn=mean(ENSO)) %>% # get annual means
+                    ungroup()  # 
+# 
+CoPrct <- merge(CoPrct,ENSO_annual,all.x=T) 
+
+# This was my initial try, which didn't work: 
+# The readHTMLTable() help page provides an example of reading a plain text table out of an 
+# HTML <pre> element using htmlParse(), getNodeSet(), textConnection() and read.table() 
+
+##############################################################################################
+# North Pacific Gyre Oscillation Index (NPGO): 
+URL_npgo <- "http://www.o3d.org/npgo/npgo.php"
+npgo_pre <- xpathSApply(content(GET(URL_npgo)),"/html/body/pre", xmlValue)
+npgo_cols <- scan(textConnection(npgo_pre), skip=25, nlines=1, what=character())# Get header row
+npgo_cols <- npgo_cols[2:4] # select column names
+npgo_df <- read.csv(file=textConnection(npgo_pre), skip=26, stringsAsFactors=F, sep="", 
+                 header=FALSE, col.names=npgo_cols, strip.white=TRUE)
+
+npgo_annual <- npgo_df %>% 
+               rename(Year=YEAR) %>% # rename data columns         
+               filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
+               group_by(Year) %>%
+               summarise(NPGO_anul_mn=mean(NPGO)) %>% # get annual means
+               ungroup()  # 
+#
+CoPrct <- merge(CoPrct,npgo_annual,all.x=T) 
+
+##############################################################################################
+###  Pacific Decadal Oscillation Index (PDO): 
+URL_pdo <- "http://jisao.washington.edu/pdo/PDO.latest"
+pdo_raw <- html(URL_pdo)
+pdo_pre <- pdo_raw %>% 
+               html_node("p") %>%
+               html_text()
+pdo_cols <- scan(textConnection(pdo_pre), skip=29, nlines=1, what=character())# Get header row
+pdo <- read.csv(file=textConnection(pdo_pre), skip=30, stringsAsFactors=F, sep="", 
+                 header=FALSE, col.names=pdo_cols, strip.white=TRUE)
+pdo_df <- pdo[1:116,]   # removes text at end of document
+pdo_df$YEAR <- substr(pdo_df$YEAR, 1, 4)  # removes asterisks from years 2002-2015
+
+pdo_annual <- pdo_df %>% 
+              rename(Year=YEAR) %>% # rename data columns         
+              filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
+              gather(Month, PDO, -Year) %>% # reshapes data to be column-wise
+              group_by(Year) %>%
+              summarise(PDO_anul_mn=mean(as.numeric(as.character(PDO)))) %>% # get annual means
+              ungroup() 
+#
+CoPrct <- merge(CoPrct,pdo_annual,all.x=T)
+
+###############################################################################################
+### Upwelling Anomalies: 
+URL_upanom <- "http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upanoms.mon"
+upanom_raw <- html(URL_upanom)
+upanom_pre <- upanom_raw %>% 
+              html_node("p") %>%
+              html_text()
+upanom_cols <- scan(textConnection(upanom_pre), skip=2, nlines=1, what=character())# Get header row
+upanom <- read.csv(file=textConnection(upanom_pre), skip=4, stringsAsFactors=F, sep="", 
+                   header=FALSE, strip.white=TRUE)
+upanom_df <- upanom[]
 
 
+col.names=upanom_cols,
 
 
 
