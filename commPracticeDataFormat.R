@@ -160,6 +160,7 @@ TmpSams <- read.csv(file=textConnection(Ts1),stringsAsFactors=FALSE,strip.white=
 head(TmpSams)
 #
 Temps <- merge(Tmps, TmpSams, all.x=TRUE)  # merge sample information with data values
+Temps$Date <- sapply((strsplit(as.character(Temps$dateTime), split=" ")), function(x) x[1]) # split date out
 head(Temps)
 
 ############################################
@@ -170,7 +171,8 @@ head(Temps)
 
 
 SST <- Temps %>%
-             mutate(Year=substring(dateTime,1,4)) %>%   # creates Year column
+             mutate(Year=sapply((strsplit(as.character(Date), split="/")), 
+                                function(x) x[3])) %>%   # creates Year column
              arrange(dateTime) %>%
              rename(WTemp_C=temp) %>%
              group_by(Year) %>%
@@ -542,9 +544,8 @@ pdo_pre <- pdo_raw %>%
                html_node("p") %>%
                html_text()
 pdo_cols <- scan(textConnection(pdo_pre), skip=29, nlines=1, what=character())# Get header row
-pdo <- read.csv(file=textConnection(pdo_pre), skip=30, stringsAsFactors=F, sep="", 
-                 header=FALSE, col.names=pdo_cols, strip.white=TRUE)
-pdo_df <- pdo[1:116,]   # removes text at end of document
+pdo_df <- read.table(file=textConnection(pdo_pre), skip=30, nrows=116, stringsAsFactors=F, sep="", 
+                  header=FALSE, col.names=pdo_cols, strip.white=TRUE, fill=TRUE)
 pdo_df$YEAR <- substr(pdo_df$YEAR, 1, 4)  # removes asterisks from years 2002-2015
 
 pdo_annual <- pdo_df %>% 
@@ -552,7 +553,7 @@ pdo_annual <- pdo_df %>%
               filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
               gather(Month, PDO, -Year) %>% # reshapes data to be column-wise
               group_by(Year) %>%
-              summarise(PDO_anul_mn=mean(as.numeric(as.character(PDO)))) %>% # get annual means
+              summarise(PDO_anul_mn=mean(as.numeric(as.character(PDO)), na.rm = TRUE)) %>% # get annual means
               ungroup() 
 #
 CoPrct <- merge(CoPrct,pdo_annual,all.x=T)
@@ -565,14 +566,20 @@ upanom_pre <- upanom_raw %>%
               html_node("p") %>%
               html_text()
 upanom_cols <- scan(textConnection(upanom_pre), skip=2, nlines=1, what=character())# Get header row
-upanom <- read.csv(file=textConnection(upanom_pre), skip=4, stringsAsFactors=F, sep="", 
-                   header=FALSE, strip.white=TRUE)
-upanom_df <- upanom[]
+upanom_cols <- c("Lat", "Long", upanom_cols[-1])# split position into lat and long 
+upanom_df <- read.csv(file=textConnection(upanom_pre), skip=4, stringsAsFactors=F, sep="", 
+                   header=FALSE, col.names=upanom_cols, strip.white=TRUE)
+upanom <- upanom_df %>% 
+          rename(Year=YEAR) %>% # rename data columns   
+          filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
+          gather(Month, UpwelAnom,-Year,-Lat,-Long) %>% # reshapes data to be column-wise
+          group_by(Year) %>%
+          summarise(UpWelAnom_anul_mn=mean(UpwelAnom, na.rm = TRUE)) %>% # get annual means
+          ungroup() 
+#
+CoPrct <- merge(CoPrct,upanom,all.x=T)
 
-
-col.names=upanom_cols,
-
-
+###############################################################################################
 
 
 
