@@ -12,7 +12,6 @@ library(XML)
 library(curl)
 library(rvest)
 library(tidyr)
-library(data.table)
 library(stringr)
 
 
