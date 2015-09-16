@@ -615,9 +615,25 @@ SSL <- SSL_df %>%
 CoPrct <- merge(CoPrct,SSL,all.x=T)
 
 ###############################################################################################
+### Phytoplankton: (from Seward Line dataset)
+URL_Phy <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.40.1"
+PhyGet <- GET(URL_Phy)
+Phy1 <- content(PhyGet, as='text')
+Phy_df <- read.csv(file=textConnection(Phy1),stringsAsFactors=FALSE)
+head(Phy_df)
+#
+Phy <- Phy_df %>%
+       arrange(dateTime) %>%     
+       mutate(Year=substring(dateTime,1,4)) %>%  
+       rename(Fluor_micgL=fluor) %>%
+       group_by(Year) %>%
+       summarise(Fluor_micgL_AnnMn=mean(Fluor_micgL, na.rm=TRUE)) %>% # get annual means
+       ungroup() %>%
+       select(Year, Fluor_micgL_AnnMn)  # selects columns wanted
+#
+CoPrct <- merge(CoPrct,Phy,all.x=T)
 
-
-
+###############################################################################################
 
 
 
