@@ -609,6 +609,7 @@ CoPrct <- merge(CoPrct,Phy,all.x=T)
 ###############################################################################################
 ### Zooplankton (from Seward Line dataset)
 # for full zooplankton processing scripts see dmx-common repository
+# Caution: Use as a placeholder for now: Dataset needs some QC, and gear change in 2005 not yet accounted for
 #
 # Load output of May Small zooplankton processing script. Values are biomass (g WW / m3):
 URL_SZo <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uUXhnd2c3REszVDQ"
@@ -667,7 +668,6 @@ CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 ### Fish data from Sarah Gaichas
 # NB Sarah cautions that these data should be used only as placeholders until they're updated
 #
-# Load data
 URL_Fish <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ubGJLYXQwRlR0Ujg"
 FishGet <- GET(URL_Fish)
 Fish1 <- content(FishGet, as='text')
