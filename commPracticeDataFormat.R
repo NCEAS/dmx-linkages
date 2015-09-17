@@ -642,27 +642,6 @@ head(MayEuphausiids)
 CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)
 
 ###############################################################################################
-### Juvenile Pollock
-#
-# Data are from Winter hydroacoustic trawls at Shelikof Strait conducted by AFSC:
-# Jones, D. T., S. C. Steinessen, and A. L. McCarthy. 2014. 
-# Results of the acoustic-trawl surveys of walleye pollock (Gadus chalcogrammus) 
-# in the Gulf of Alaska, February-March 2013 (DY2013-02 and DY2013-03). 
-# AFSC Processed Rep. 2014-03, 81 p. Alaska Fish. Sci. Cent., NOAA, Natl. Mar. Fish. Serv., 
-# 7600 Sand Point Way NE, Seattle WA 98115.
-# Available at www.afsc.noaa.gov/Publications/ProcRpt/PR2014-03.pdf
-#
-# Data is biomass of age-3 Pollock (thousands of metric tons) (from Table 19, p40)
-#
-URL_JuvPol <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uRUtPVXlfWnJZWDA"
-JuvPolGet <- GET(URL_JuvPol)
-JuvPol1 <- content(JuvPolGet, as='text')
-JuvPol_df <- read.csv(file=textConnection(JuvPol1),stringsAsFactors=FALSE)
-head(JuvPol_df)
-#
-CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
-
-###############################################################################################
 ### Fish data from Sarah Gaichas
 # NB Sarah cautions that these data should be used only as placeholders until they're updated
 #
@@ -671,8 +650,14 @@ FishGet <- GET(URL_Fish)
 Fish1 <- content(FishGet, as='text')
 Fish_df <- read.csv(file=textConnection(Fish1),stringsAsFactors=FALSE)
 head(Fish_df)
+names(Fish_df)
 #
-CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
+# extract Capelin biomass
+# units are Biomass (tons/km2) from surveys
+CapelinBiomass <- Fish_df %>%
+  select(Year, Capelin)
+head(CapelinBiomass)
+CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 
 ###############################################################################################
 ### Pollock Biomass (from NOAA stock assessments):
