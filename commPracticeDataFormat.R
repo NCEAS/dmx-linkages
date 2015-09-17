@@ -657,6 +657,7 @@ names(Fish_df)
 CapelinBiomass <- Fish_df %>%
   select(Year, Capelin)
 head(CapelinBiomass)
+#
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 
 ###############################################################################################
@@ -673,7 +674,25 @@ CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 #PollGet <- GET(URL_Pollock)
 #readPDF(engine="xpdf",)
 
-URL_T19 <- "https://drive.google.com/uc?export=download&id=1cepYYUHmWA4FVgJMJs3cE414mOnD3xA0WDx7YQ6Usb8"
+URL_T19 <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-udFBubXBZTDhXUDA"
+PollGet <- GET(URL_T19)
+Poll1 <- content(PollGet, as='text')
+Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
+head(Poll_df)
+#
+Poll_Adult <- Poll_df %>%
+              rename()
+              
+  
+Poll_Yr1 <- Poll_df %>%
+            
+#
+CoPrct <- merge(CoPrct, ,all.x=T) # adult pollock
+CoPrct <- merge(CoPrct, ,all.x=T) # year 1 pollock
+
+########################################################################################################
+### 
+
 
 
 
