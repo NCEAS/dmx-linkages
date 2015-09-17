@@ -677,17 +677,18 @@ CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 ###############################################################################################
 ### Pollock Biomass (from NOAA stock assessments):
 
+# https://github.com/gimoya/theBioBucket-Archives/blob/master/R/txtmining_pdf.R
 # download pdftotxt from 
 # ftp://ftp.foolabs.com/pub/xpdf/xpdfbin-win-3.03.zip
 # and extract to your program files folder
 
-library(tm)
+#library(tm)
 
-URL_Pollock <- "http://www.afsc.noaa.gov/REFM/Docs/2014/GOApollock.pdf"
-PollGet <- GET(URL_Pollock)
-readPDF(engine="xpdf",)
+#URL_Pollock <- "http://www.afsc.noaa.gov/REFM/Docs/2014/GOApollock.pdf"
+#PollGet <- GET(URL_Pollock)
+#readPDF(engine="xpdf",)
 
-
+URL_T19 <- "https://drive.google.com/uc?export=download&id=1cepYYUHmWA4FVgJMJs3cE414mOnD3xA0WDx7YQ6Usb8"
 
 
 
