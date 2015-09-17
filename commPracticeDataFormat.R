@@ -642,7 +642,6 @@ head(MayEuphausiids)
 CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)
 
 ###############################################################################################
-
 ### Juvenile Pollock
 #
 # Data are from Winter hydroacoustic trawls at Shelikof Strait conducted by AFSC:
@@ -664,7 +663,6 @@ head(JuvPol_df)
 CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 
 ###############################################################################################
-
 ### Fish data from Sarah Gaichas
 # NB Sarah cautions that these data should be used only as placeholders until they're updated
 #
@@ -677,6 +675,26 @@ head(Fish_df)
 CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 
 ###############################################################################################
+### Pollock Biomass (from NOAA stock assessments):
+
+# download pdftotxt from 
+# ftp://ftp.foolabs.com/pub/xpdf/xpdfbin-win-3.03.zip
+# and extract to your program files folder
+
+library(tm)
+
+URL_Pollock <- "http://www.afsc.noaa.gov/REFM/Docs/2014/GOApollock.pdf"
+PollGet <- GET(URL_Pollock)
+readPDF(engine="xpdf",)
+
+
+
+
+
+
+
+
+
 
 
 
