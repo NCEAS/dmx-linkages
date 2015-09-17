@@ -664,9 +664,19 @@ CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 
 ###############################################################################################
 
+### Fish data from Sarah Gaichas
+# NB Sarah cautions that these data should be used only as placeholders until they're updated
+#
+# Load data
+URL_Fish <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ubGJLYXQwRlR0Ujg"
+FishGet <- GET(URL_Fish)
+Fish1 <- content(FishGet, as='text')
+Fish_df <- read.csv(file=textConnection(Fish1),stringsAsFactors=FALSE)
+head(Fish_df)
+#
+CoPrct <- merge(CoPrct,JuvPol_df,all.x=T)
 
-
-
+###############################################################################################
 
 
 
