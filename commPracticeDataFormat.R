@@ -35,32 +35,6 @@ head(WPinks)
 CoPrct <- merge(CoPrct,WPinks,all.x=T) # merge with CoPrct dataframe
 
 ############################################################################################
-# Euphausids:
-### NOTE: Need to check these data for NAs, and appropriate aggregation to annual values...
-###  this was made as a quick example and hasn't been checked yet.
-URL_Eu <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.61.3"
-EuGet <- GET(URL_Eu)
-Eu1 <- content(EuGet, as='text')
-Eu <- read.csv(file=textConnection(Eu1),stringsAsFactors=F)
-head(Eu)
-# 
-DT <- strsplit(as.character(Eu$startDateTime), split=" ") # split the column to extract year
-DT2<- sapply(DT, function(x) x[1])
-DY <- strsplit(as.character(DT2), split="-") 
-Eu$Year <- sapply(DY, function(x) x[1]) # create Sample Year column
-head(Eu)
-
-Euph <- Eu %>% 
-        filter(!is.na(biomass)) %>%
-        filter(specimen %in% "Euphausiacea") %>%  # select just Euphausids
-        group_by(Year) %>%
-        summarise(Euph_mn_bmss_g_m3=mean(biomass)) %>%
-        ungroup() %>%
-        select(Year, Euph_mn_bmss_g_m3)
-#
-CoPrct <- merge(CoPrct,Euph,all.x=T)
-
-############################################################################################
 ### Salmon data from ADF&G: http://www.adfg.alaska.gov/index.cfm?adfg=CommercialByFisherySalmon.exvesselquery
 ## orig added by Steph Zador
 
