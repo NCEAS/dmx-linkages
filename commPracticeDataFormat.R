@@ -709,26 +709,17 @@ Shr_df <- Shr_df %>%
 CoPrct <- merge(CoPrct,Shr_df,all.x=T)
 #
 ########################################################################################################
-### Pacific Cod (from NOAA stock assessments): 
-# Metadata column header: female spawning biomass from Table 2.18 – Estimated female spawning biomass (t) 
-#                                               from the 2012 assessment and this year’s assessment
-#                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age 
-#                                              (millions) at the time of spawning
 
-URL_PC <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-ubDJJdkE4NVg4a28"
-PC_Get <- GET(URL_PC)
-PC1 <- content(PC_Get, as='text')
-#PC_metah <- scan(textConnection(PC1), nlines=1, what=character())  # reads first header line which includes metadata
-PC_df <- read.csv(file=textConnection(PC1),stringsAsFactors=FALSE,head=TRUE)
-head(PC_df)
-
-PC_df <- PC_df %>%
-         rename(Year=year, PCod_female_Bmss_t=female.spawning.biomass, 
-                PCod_Age1_millions=Age.1.numbers..in.millions.) %>%
+# Arrowtooth adult biomass (age-3 plus; tons)
+# from 2013 SAFE Stock Assessment
 #
-CoPrct <- merge(CoPrct,PC_df,all.x=T)  
-
+URL_Arr <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uSVh6Rl9FNXFwRm8"
+ArrGet <- GET(URL_Arr)
+Arr1 <- content(ArrGet, as='text')
+Arr_df <- read.csv(file=textConnection(Arr1),stringsAsFactors=FALSE)
+head(Arr_df)
+#
+CoPrct <- merge(CoPrct,Arr_df,all.x=T)
+#
 ########################################################################################################
-
-
 
