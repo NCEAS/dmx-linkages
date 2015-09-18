@@ -704,6 +704,15 @@ head(Shr_df)
 CoPrct <- merge(CoPrct,Shr_df,all.x=T)
 #
 ########################################################################################################
-
-
-
+# Arrowtooth adult biomass (age-3 plus; tons)
+# from 2013 SAFE Stock Assessment
+https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uZ25EZkhRSzVMR1k
+#
+URL_Arr <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uSVh6Rl9FNXFwRm8"
+ArrGet <- GET(URL_Arr)
+Arr1 <- content(ArrGet, as='text')
+Arr_df <- read.csv(file=textConnection(Arr1),stringsAsFactors=FALSE)
+head(Arr_df)
+CoPrct <- merge(CoPrct,Arr_df,all.x=T)
+#
+########################################################################################################
