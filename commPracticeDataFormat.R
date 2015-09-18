@@ -764,8 +764,21 @@ EKE <- EKE_df %>%
 CoPrct <- merge(CoPrct,EKE,all.x=T)  
 
 #########################################################################################################
-
-
+# Sharks & Skates
+# Skates = total skate BIOMASS (tons) from GoA Large Mesh Trawl surveys
+# Table 1 in 2013 AFSC Skate Stock Assessment Report (available from http://www.afsc.noaa.gov/refm/stocks/2013_assessments.htm)
+#
+# Sharks = total shark NUMBERS from IPHC longline survey
+# Table 20.A.1 in 2011 AFSC Shark Stock Assessment Report (available from http://www.afsc.noaa.gov/refm/stocks/2011_assessments.htm)
+#
+URL_ShSk <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uc1BiN3lUVERySzQ"
+ShSk_Get <- GET(URL_ShSk)
+ShSk1 <- content(ShSk_Get, as='text')
+ShSk_df <- read.csv(file=textConnection(ShSk1),stringsAsFactors=FALSE,head=TRUE)
+head(ShSk_df)
+#
+CoPrct <- merge(CoPrct,ShSk,all.x=T) 
+#########################################################################################################
 
 
 
