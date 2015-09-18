@@ -662,16 +662,16 @@ Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
 head(Poll_df)
 #
 Poll_Adult <- Poll_df %>%
-              rename(Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t., 
+              rename(Poll_Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t., 
                      Catch_tons=Catch..t.) %>%
               filter(!is.na(Year)) %>%
-              select(Year, Yr3plus_TtlBmss_1000Tons)
+              select(Year, Poll_Yr3plus_TtlBmss_1000Tons)
 
 Poll_Yr1 <- Poll_df %>%
-            rename(Age1_recruits_millions=Age.1.recruits..million.,
+            rename(Poll_Age1_recruits_millions=Age.1.recruits..million.,
                    Catch_tons=Catch..t.) %>%
             filter(!is.na(Year)) %>%
-            select(Year, Age1_recruits_millions)
+            select(Year, Poll_Age1_recruits_millions)
             
 #
 CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # adult pollock
@@ -689,6 +689,7 @@ ChlGet <- GET(URL_Chl)
 Chl1 <- content(ChlGet, as='text')
 Chl_df <- read.csv(file=textConnection(Chl1),stringsAsFactors=FALSE)
 head(Chl_df)
+#
 CoPrct <- merge(CoPrct,Chl_df,all.x=T)
 #
 ########################################################################################################
@@ -701,8 +702,32 @@ ShrGet <- GET(URL_Shr)
 Shr1 <- content(ShrGet, as='text')
 Shr_df <- read.csv(file=textConnection(Shr1),stringsAsFactors=FALSE)
 head(Shr_df)
+#
+Shr_df <- Shr_df %>%
+          rename(Year=year, Pink_Shrimp=p.shrimp)
+#
 CoPrct <- merge(CoPrct,Shr_df,all.x=T)
 #
+########################################################################################################
+### Pacific Cod (from NOAA stock assessments): 
+# Metadata column header: female spawning biomass from Table 2.18 – Estimated female spawning biomass (t) 
+#                                               from the 2012 assessment and this year’s assessment
+#                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age 
+#                                              (millions) at the time of spawning
+
+URL_PC <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-ubDJJdkE4NVg4a28"
+PC_Get <- GET(URL_PC)
+PC1 <- content(PC_Get, as='text')
+#PC_metah <- scan(textConnection(PC1), nlines=1, what=character())  # reads first header line which includes metadata
+PC_df <- read.csv(file=textConnection(PC1),stringsAsFactors=FALSE,head=TRUE)
+head(PC_df)
+
+PC_df <- PC_df %>%
+         rename(Year=year, PCod_female_Bmss_t=female.spawning.biomass, 
+                PCod_Age1_millions=Age.1.numbers..in.millions.) %>%
+#
+CoPrct <- merge(CoPrct,PC_df,all.x=T)  
+
 ########################################################################################################
 
 
