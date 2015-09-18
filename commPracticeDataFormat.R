@@ -610,14 +610,14 @@ MayZo = full_join(SZo_df, LZo_df, by = "Year") # merge Small & Large Zooplankton
 View(MayZo)
 #
 MayCopepods <- MayZo %>%
-  mutate(MayCopepods = rowSums(MayZo[,2:35], na.rm=T)) %>% # sum all small & large copepods
-  select(Year, MayCopepods)
+               mutate(MayCopepods = rowSums(MayZo[,2:35], na.rm=T)) %>% # sum all small & large copepods
+               select(Year, MayCopepods)
 head(MayCopepods)
 #
 CoPrct <- merge(CoPrct,MayCopepods,all.x=T)
 #
 MayEuphausiids <- MayZo %>%
-  select(Year, Euphausiids)
+                  select(Year, Euphausiids)
 head(MayEuphausiids)
 #
 CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)
@@ -662,14 +662,20 @@ Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
 head(Poll_df)
 #
 Poll_Adult <- Poll_df %>%
-              rename()
-              
-  
+              rename(Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t., 
+                     Catch_tons=Catch..t.) %>%
+              filter(!is.na(Year)) %>%
+              select(Year, Yr3plus_TtlBmss_1000Tons)
+
 Poll_Yr1 <- Poll_df %>%
+            rename(Age1_recruits_millions=Age.1.recruits..million.,
+                   Catch_tons=Catch..t.) %>%
+            filter(!is.na(Year)) %>%
+            select(Year, Age1_recruits_millions)
             
 #
-CoPrct <- merge(CoPrct, ,all.x=T) # adult pollock
-CoPrct <- merge(CoPrct, ,all.x=T) # year 1 pollock
+CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # adult pollock
+CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # year 1 pollock
 
 ########################################################################################################
 # Mean annual Chl a anomalies (mg/m3) for Gulf of Alaska
