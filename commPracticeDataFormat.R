@@ -588,25 +588,6 @@ SSL <- SSL_df %>%
 CoPrct <- merge(CoPrct,SSL,all.x=T)
 
 ###############################################################################################
-### Phytoplankton: (from Seward Line dataset)
-URL_Phy <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.40.1"
-PhyGet <- GET(URL_Phy)
-Phy1 <- content(PhyGet, as='text')
-Phy_df <- read.csv(file=textConnection(Phy1),stringsAsFactors=FALSE)
-head(Phy_df)
-#
-Phy <- Phy_df %>%
-       arrange(dateTime) %>%     
-       mutate(Year=substring(dateTime,1,4)) %>%  
-       rename(Fluor_micgL=fluor) %>%
-       group_by(Year) %>%
-       summarise(Fluor_micgL_AnnMn=mean(Fluor_micgL, na.rm=TRUE)) %>% # get annual means
-       ungroup() %>%
-       select(Year, Fluor_micgL_AnnMn)  # selects columns wanted
-#
-CoPrct <- merge(CoPrct,Phy,all.x=T)
-
-###############################################################################################
 ### Zooplankton (from Seward Line dataset)
 # for full zooplankton processing scripts see dmx-common repository
 # Caution: Use as a placeholder for now: Dataset needs some QC, and gear change in 2005 not yet accounted for
@@ -691,14 +672,20 @@ CoPrct <- merge(CoPrct, ,all.x=T) # adult pollock
 CoPrct <- merge(CoPrct, ,all.x=T) # year 1 pollock
 
 ########################################################################################################
-### 
-
-
-
-
-
-
-
+# Mean annual Chl a anomalies (mg/m3) for Gulf of Alaska
+# From Waite & Mueter 2013, Fig 11 Annual
+# Waite, J.N. and Mueter, F.J. 2013. Spatial and temporal variability of chlorophyll-a concentrations 
+# in the coastal Gulf of Alaska, 1998-2011, using cloud-free reconstructions of SeaWiFS and MODIS-Aqua data.
+# Prog. Oceanogr. 116, 179-192.
+#
+URL_Chl <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uRHdOTGQtSVBQOE0"
+ChlGet <- GET(URL_Chl)
+Chl1 <- content(ChlGet, as='text')
+Chl_df <- read.csv(file=textConnection(Chl1),stringsAsFactors=FALSE)
+head(Chl_df)
+CoPrct <- merge(CoPrct,Chl_df,all.x=T)
+#
+########################################################################################################
 
 
 
