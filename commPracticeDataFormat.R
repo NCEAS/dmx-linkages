@@ -14,7 +14,7 @@ library(rvest)
 library(tidyr)
 library(stringr)
 
-
+#hi world
 
 ## create empty data frame with Year column
 CoPrct=data.frame('Year'=c(1975:2015))
@@ -777,9 +777,12 @@ ShSk1 <- content(ShSk_Get, as='text')
 ShSk_df <- read.csv(file=textConnection(ShSk1),stringsAsFactors=FALSE,head=TRUE)
 head(ShSk_df)
 #
-CoPrct <- merge(CoPrct,ShSk,all.x=T) 
+CoPrct <- merge(CoPrct,ShSk_df,all.x=T) 
 #########################################################################################################
 
+write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
 
-
+#things to fix-
+#ShSK in line 780 should be ShSk_df
+#get rid of the commas in all of the data fields
 
