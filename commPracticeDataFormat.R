@@ -14,7 +14,7 @@ library(rvest)
 library(tidyr)
 library(stringr)
 
-zach=kook...still
+#zach=kook...still
 
 ## create empty data frame with Year column
 CoPrct=data.frame('Year'=c(1975:2015))
@@ -779,7 +779,7 @@ head(ShSk_df)
 #
 CoPrct <- merge(CoPrct,ShSk,all.x=T) 
 #########################################################################################################
-
+#
 
 
 
