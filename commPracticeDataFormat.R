@@ -777,7 +777,7 @@ ShSk1 <- content(ShSk_Get, as='text')
 ShSk_df <- read.csv(file=textConnection(ShSk1),stringsAsFactors=FALSE,head=TRUE)
 head(ShSk_df)
 #
-CoPrct <- merge(CoPrct,ShSk,all.x=T) 
+CoPrct <- merge(CoPrct,ShSk_df,all.x=T) 
 #########################################################################################################
 # Tanner Crab
 # Data are from Spalinger 2015 (ADFG Fishery Management Report No. 15-27):
@@ -802,4 +802,4 @@ CoPrct <- merge(CoPrct,TCrab,all.x=T)
 #########################################################################################################
 #
 
-
+write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
