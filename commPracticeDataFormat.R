@@ -796,10 +796,28 @@ TCrab = TCrab_df %>%
   filter(Year != 1988) %>% # some sites not sampled in 1988
   filter(Year != 1995) %>% # some sites not sample in 1995
   mutate(TotTCrab = KodiakTotalTannerCrabAbund + WesternSectionTotals + 
-           EasternSectionTotals + SouthPeninsulaDistrictTotals + ChignikDistrictTotals)
+           EasternSectionTotals + SouthPeninsulaDistrictTotals + ChignikDistrictTotals) %>%
+  select(Year, TotTCrab)
 View(TCrab)
 CoPrct <- merge(CoPrct,TCrab,all.x=T)
 #########################################################################################################
+# Halibut Fishery Data
+URL_HlbtFishery <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uY0JVVHQxSWxXYVU"
+HlbtFishery_Get <- GET(URL_HlbtFishery)
+HlbtFishery1 <- content(HlbtFishery_Get, as='text')
+HlbtFishery_df <- read.csv(file=textConnection(HlbtFishery1),stringsAsFactors=FALSE,head=TRUE)
+head(HlbtFishery_df)
 #
+CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T)
+#########################################################################################################
+# Pollock Fishery Data
+URL_PollFishery <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ual9URUl0THRBUGs"
+PollFishery_Get <- GET(URL_PollFishery)
+PollFishery1 <- content(PollFishery_Get, as='text')
+PollFishery_df <- read.csv(file=textConnection(PollFishery1),stringsAsFactors=FALSE,head=TRUE)
+head(PollFishery_df)
+#
+CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)
+#########################################################################################################
 
 write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
