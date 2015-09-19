@@ -655,7 +655,7 @@ CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 #PollGet <- GET(URL_Pollock)
 #readPDF(engine="xpdf",)
 
-URL_T19 <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-udFBubXBZTDhXUDA"
+URL_T19 <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uSFJYVXE0ZGNLaHc"
 PollGet <- GET(URL_T19)
 Poll1 <- content(PollGet, as='text')
 Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
@@ -727,7 +727,7 @@ CoPrct <- merge(CoPrct,Arr_df,all.x=T)
 #                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age 
 #                                              (millions) at the time of spawning
 
-URL_PC <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-ubDJJdkE4NVg4a28"
+URL_PC <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uNURmV3JvT1Y1eFU"
 PC_Get <- GET(URL_PC)
 PC1 <- content(PC_Get, as='text')
 PC_df <- read.csv(file=textConnection(PC1),stringsAsFactors=FALSE,head=TRUE)
