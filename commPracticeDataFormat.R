@@ -19,7 +19,7 @@ library(stringr)
 ## create empty data frame with Year column
 CoPrct=data.frame('Year'=c(1975:2015))
 
-## Steps for adding data columns: 
+## Steps for adding data columns:
 ## 1) read in data
 ## 2) format to annual estimates (2 column dataframe with cols=Year,spEstimate)
 ## 3) merge with CoPrct dataframe:   CoPrct=merge(CoPrct,newData,all.x=T)  # rename new df CoPrct
@@ -43,8 +43,8 @@ post_body <- list(Year="2014", areas= "allareas", speciesx= "allspecies", submit
 html <- POST(post_url, body = post_body, encode = "form")
 akcommdf_2014 <- readHTMLTable(content(html))[[1]]
 
-salmonDf<-data.frame(V1 = character(0), 
-                     V2 = character(0), 
+salmonDf<-data.frame(V1 = character(0),
+                     V2 = character(0),
                      V3 = character(0),
                      V4 = character(0),
                      V5 = character(0),
@@ -97,7 +97,7 @@ kingDf=salmonDf %>%
 CoPrct <- merge(CoPrct,kingDf,all.x=T)
 
 ###############################################################################################
-### North Pacific Index (NPI) for sea level pressure: 
+### North Pacific Index (NPI) for sea level pressure:
 URL_npi <- "https://climatedataguide.ucar.edu/sites/default/files/climate_index_files/npindex_monthly.ascii"
 npiGet <- GET(URL_npi)
 npi1 <- content(npiGet, as='text')
@@ -114,12 +114,12 @@ NPI <- npi %>%
                   SeaLevelPressure_hPa != -999.00) %>% # remove NA values, and -999 values which are NAs
            group_by(Year) %>%
            summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
-           ungroup() 
+           ungroup()
 #
-CoPrct <- merge(CoPrct,NPI,all.x=T) 
+CoPrct <- merge(CoPrct,NPI,all.x=T)
 
 ###############################################################################################
-###  Water Temperature (SST): 
+###  Water Temperature (SST):
 URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
 TGet <- GET(URL_T)
 T1 <- content(TGet, as='text')
@@ -144,7 +144,7 @@ head(Temps)
 
 
 SST <- Temps %>%
-             mutate(Year=sapply((strsplit(as.character(Date), split="/")), 
+             mutate(Year=sapply((strsplit(as.character(Date), split="/")),
                                 function(x) x[3])) %>%   # creates Year column
              arrange(dateTime) %>%
              rename(WTemp_C=temp) %>%
@@ -154,7 +154,7 @@ SST <- Temps %>%
              select(Year, WTemp_C_AnnMn)  # selects columns wanted
 #
 CoPrct <- merge(CoPrct,SST,all.x=T)
-  
+
 
 ##############################################################################################
 # Winds (annual and winter) : from National Buoy Data Center
@@ -168,30 +168,30 @@ CoPrct <- merge(CoPrct,SST,all.x=T)
 BuoyData <- function(data_url){
             dataGet <- GET(data_url)
             data1 <- content(dataGet, as='text')
-         
+
             # need to say get year from URL
             year <- str_sub(data_url,60,63)
-            # also get file name from URL   
-            assign("filename", (paste("D_",str_sub(data_url,54,63),sep="")),
-                   envir=.GlobalEnv)
-         
+            # also get file name from URL
+            filename <- paste("D_",str_sub(data_url,54,63),sep="")
+
             # need to say if year < 2007 do this...
             if (year < "2007") {
-                    filename <- read.table(file=textConnection(data1),
+                    df <- read.table(file=textConnection(data1),
                                            stringsAsFactors=FALSE,header=TRUE)
-                  }
+            }
             # and if year >/= 2007 do this...
             else {#(year >= "2007"),
                     data_h <- scan(textConnection(data1), nlines=1, what=character())  # reads first header line
                     data_h <- gsub("#YY", "YYYY", data_h)  # gets rid of column name with # in it
-                    filename <- read.table(file=textConnection(data1),
+                    df <- read.table(file=textConnection(data1),
                                            stringsAsFactors=FALSE,skip=2,header=FALSE)
-                    names(filename) <- data_h   # pastes the header line in
-                    filename <- rename(filename, WD=WDIR, BAR=PRES)
+                    names(df) <- data_h   # pastes the header line in
+                    df <- rename(df, WD=WDIR, BAR=PRES)
                   }
-            
-            return(filename)
-            }
+            ## assign(filename, df, envir=.GlobalEnv)
+
+            return(df)
+}
 
 S76_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2010.txt.gz&dir=data/historical/stdmet/"
 
@@ -201,7 +201,7 @@ BuoyData(S76_10)
 
 
 
-### Station 46076 
+### Station 46076
 # NOTE: The 2005 data starts in June
 URLS76_05 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2005.txt.gz&dir=data/historical/stdmet/"
 S76_05Get <- GET(URLS76_05)
@@ -231,8 +231,8 @@ S76_08_h <- gsub("#YY", "YYYY", S76_08_h)  # gets rid of column name with # in i
 S76_08 <- read.table(file=textConnection(S76_081),stringsAsFactors=FALSE,skip=2,header=FALSE)
 names(S76_08) <- S76_08_h   # pastes the header line in
 S76_08 <- rename(S76_08, WD=WDIR, BAR=PRES)
-      
-URLS76_09 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2009.txt.gz&dir=data/historical/stdmet/"            
+
+URLS76_09 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2009.txt.gz&dir=data/historical/stdmet/"
 S76_09Get <- GET(URLS76_09)
 S76_091 <- content(S76_09Get, as='text')
 S76_09_h <- scan(textConnection(S76_091), nlines=1, what=character())  # reads first header line
@@ -482,8 +482,8 @@ head(AB) ; str(AB)
 # bind data from three buoys together
 Buoys_all <- bind_rows(CC,PB,AB)
 
-# 
-Wind_Ann <- Buoys_all %>% 
+#
+Wind_Ann <- Buoys_all %>%
                   filter(WD!=99, WD!=999, WSPD!=99, WSPD!=999) %>%  # remove missing data
                   rename(Year=YYYY) %>%       # rename column for uniformity
                   group_by(Year) %>%
@@ -503,13 +503,13 @@ Wind_Winter <- Buoys_all %>%
 CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)  # Annual mean wind
 CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)  # Winter mean wind
 
-                  
+
 ###############################################################################################
-###  Multivariate ENSO Index (MEI): 
+###  Multivariate ENSO Index (MEI):
 URL_enso <- "http://www.esrl.noaa.gov/psd/enso/mei/table.html"
 enso_pre <- xpathSApply(content(GET(URL_enso)),"/html/body/pre", xmlValue)
 enso_cols <- scan(textConnection(enso_pre), skip=10, nlines=1, what=character()) # get header row
-enso <- read.csv(file=textConnection(enso_pre), skip=11, stringsAsFactors=F, sep="\t", 
+enso <- read.csv(file=textConnection(enso_pre), skip=11, stringsAsFactors=F, sep="\t",
                  header=FALSE, col.names=enso_cols)
 enso_df <- enso[1:66,]  # removes the text at bottom of file
 #
@@ -520,105 +520,105 @@ ENSO_annual <- enso_df %>%
                     filter(!is.na(ENSO)) %>% # remove NA values
                     group_by(Year) %>%
                     summarise(ENSO_anul_mn=mean(ENSO)) %>% # get annual means
-                    ungroup()  # 
-# 
-CoPrct <- merge(CoPrct,ENSO_annual,all.x=T) 
+                    ungroup()  #
+#
+CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)
 
-# This was my initial try, which didn't work: 
-# The readHTMLTable() help page provides an example of reading a plain text table out of an 
-# HTML <pre> element using htmlParse(), getNodeSet(), textConnection() and read.table() 
+# This was my initial try, which didn't work:
+# The readHTMLTable() help page provides an example of reading a plain text table out of an
+# HTML <pre> element using htmlParse(), getNodeSet(), textConnection() and read.table()
 
 ##############################################################################################
-# North Pacific Gyre Oscillation Index (NPGO): 
+# North Pacific Gyre Oscillation Index (NPGO):
 URL_npgo <- "http://www.o3d.org/npgo/npgo.php"
 npgo_pre <- xpathSApply(content(GET(URL_npgo)),"/html/body/pre", xmlValue)
 npgo_cols <- scan(textConnection(npgo_pre), skip=25, nlines=1, what=character())# Get header row
 npgo_cols <- npgo_cols[2:4] # select column names
-npgo_df <- read.csv(file=textConnection(npgo_pre), skip=26, stringsAsFactors=F, sep="", 
+npgo_df <- read.csv(file=textConnection(npgo_pre), skip=26, stringsAsFactors=F, sep="",
                  header=FALSE, col.names=npgo_cols, strip.white=TRUE)
 
-npgo_annual <- npgo_df %>% 
-               rename(Year=YEAR) %>% # rename data columns         
+npgo_annual <- npgo_df %>%
+               rename(Year=YEAR) %>% # rename data columns
                filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
                group_by(Year) %>%
                summarise(NPGO_anul_mn=mean(NPGO)) %>% # get annual means
-               ungroup()  # 
+               ungroup()  #
 #
-CoPrct <- merge(CoPrct,npgo_annual,all.x=T) 
+CoPrct <- merge(CoPrct,npgo_annual,all.x=T)
 
 ##############################################################################################
-###  Pacific Decadal Oscillation Index (PDO): 
+###  Pacific Decadal Oscillation Index (PDO):
 URL_pdo <- "http://jisao.washington.edu/pdo/PDO.latest"
 pdo_raw <- html(URL_pdo)
-pdo_pre <- pdo_raw %>% 
+pdo_pre <- pdo_raw %>%
                html_node("p") %>%
                html_text()
 pdo_cols <- scan(textConnection(pdo_pre), skip=29, nlines=1, what=character())# Get header row
-pdo_df <- read.table(file=textConnection(pdo_pre), skip=30, nrows=116, stringsAsFactors=F, sep="", 
+pdo_df <- read.table(file=textConnection(pdo_pre), skip=30, nrows=116, stringsAsFactors=F, sep="",
                   header=FALSE, col.names=pdo_cols, strip.white=TRUE, fill=TRUE)
 pdo_df$YEAR <- substr(pdo_df$YEAR, 1, 4)  # removes asterisks from years 2002-2015
 
-pdo_annual <- pdo_df %>% 
-              rename(Year=YEAR) %>% # rename data columns         
+pdo_annual <- pdo_df %>%
+              rename(Year=YEAR) %>% # rename data columns
               filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
               gather(Month, PDO, -Year) %>% # reshapes data to be column-wise
               group_by(Year) %>%
               summarise(PDO_anul_mn=mean(as.numeric(as.character(PDO)), na.rm = TRUE)) %>% # get annual means
-              ungroup() 
+              ungroup()
 #
 CoPrct <- merge(CoPrct,pdo_annual,all.x=T)
 
 ###############################################################################################
-### Upwelling Anomalies: 
+### Upwelling Anomalies:
 URL_upanom <- "http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upanoms.mon"
 upanom_raw <- html(URL_upanom)
-upanom_pre <- upanom_raw %>% 
+upanom_pre <- upanom_raw %>%
               html_node("p") %>%
               html_text()
 upanom_cols <- scan(textConnection(upanom_pre), skip=2, nlines=1, what=character())# Get header row
-upanom_cols <- c("Lat", "Long", upanom_cols[-1])# split position into lat and long 
-upanom_df <- read.csv(file=textConnection(upanom_pre), skip=4, stringsAsFactors=F, sep="", 
+upanom_cols <- c("Lat", "Long", upanom_cols[-1])# split position into lat and long
+upanom_df <- read.csv(file=textConnection(upanom_pre), skip=4, stringsAsFactors=F, sep="",
                    header=FALSE, col.names=upanom_cols, strip.white=TRUE)
 #
-upanom <- upanom_df %>% 
-          rename(Year=YEAR) %>% # rename data columns   
+upanom <- upanom_df %>%
+          rename(Year=YEAR) %>% # rename data columns
           filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
           gather(Month, UpwelAnom,-Year,-Lat,-Long) %>% # reshapes data to be column-wise
           group_by(Year) %>%
           summarise(UpWelAnom_anul_mn=mean(UpwelAnom, na.rm = TRUE)) %>% # get annual means
-          ungroup() 
+          ungroup()
 #
 CoPrct <- merge(CoPrct,upanom,all.x=T)
 
 ###############################################################################################
-### Stellar Sea Lions: 
+### Stellar Sea Lions:
 URL_SSL <- "https://goa.nceas.ucsb.edu/goa/metacat?action=read&qformat=metacatui&sessionid=&docid=df35b.270.1"
 SSLGet <- GET(URL_SSL)
 SSL1 <- content(SSLGet, as='text')
 SSL_df <- read.csv(file=textConnection(SSL1),stringsAsFactors=FALSE)
 head(SSL_df)
 #
-# NOTE: This is just means of the count data in the Central GOA region.  
+# NOTE: This is just means of the count data in the Central GOA region.
 SSL <- SSL_df %>%
-     #  filter(counttype %in% c(2,3)) %>% # selects count types 2 & 3, which are vertical photos, 
-       rename(Year=year) %>%               # and according to the metadata were the most accurate 
+     #  filter(counttype %in% c(2,3)) %>% # selects count types 2 & 3, which are vertical photos,
+       rename(Year=year) %>%               # and according to the metadata were the most accurate
        filter(region=="C GULF", Year %in% c(1975:2015)) %>% # selects years 1975 - 2015), selects central GOA counts
        arrange(Year) %>%
        group_by(Year) %>%
        summarise(SSLnonPup_anul_mn=mean(adult.juvenileCount, na.rm=TRUE)) %>% # get annual means
-       ungroup() 
+       ungroup()
 
 #####
-# This is code for trying to use the count data to calculate interpolated regional abundances.  
+# This is code for trying to use the count data to calculate interpolated regional abundances.
 #  I can't get it to work!!!
 
 #install.packages("devtools")
 #devtools::install_github("NMML/agTrend")
 #library(agTrend)
 #
-#SSL_fit <- mcmc.aggregate(start=1975, end=2015, data=SSL, aggregation="region", 
-#                          abund.name="adult.juvenileCount", time.name="Year", 
-#                          site.name="sitename", burn=1000, iter=5000, 
+#SSL_fit <- mcmc.aggregate(start=1975, end=2015, data=SSL, aggregation="region",
+#                          abund.name="adult.juvenileCount", time.name="Year",
+#                          site.name="sitename", burn=1000, iter=5000,
 #                          keep.site.abund=TRUE, model.data=NULL)
 #####
 
@@ -682,7 +682,7 @@ CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 ### Pollock Biomass (from NOAA stock assessments):
 
 # https://github.com/gimoya/theBioBucket-Archives/blob/master/R/txtmining_pdf.R
-# download pdftotxt from 
+# download pdftotxt from
 # ftp://ftp.foolabs.com/pub/xpdf/xpdfbin-win-3.03.zip
 # and extract to your program files folder
 
@@ -699,7 +699,7 @@ Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
 head(Poll_df)
 #
 Poll_Adult <- Poll_df %>%
-              rename(Poll_Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t., 
+              rename(Poll_Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t.,
                      Catch_tons=Catch..t.) %>%
               filter(!is.na(Year)) %>%
               select(Year, Poll_Yr3plus_TtlBmss_1000Tons)
@@ -709,7 +709,7 @@ Poll_Yr1 <- Poll_df %>%
                    Catch_tons=Catch..t.) %>%
             filter(!is.na(Year)) %>%
             select(Year, Poll_Age1_recruits_millions)
-            
+
 #
 CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # adult pollock
 CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # year 1 pollock
@@ -717,7 +717,7 @@ CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # year 1 pollock
 ########################################################################################################
 # Mean annual Chl a anomalies (mg/m3) for Gulf of Alaska
 # From Waite & Mueter 2013, Fig 11 Annual
-# Waite, J.N. and Mueter, F.J. 2013. Spatial and temporal variability of chlorophyll-a concentrations 
+# Waite, J.N. and Mueter, F.J. 2013. Spatial and temporal variability of chlorophyll-a concentrations
 # in the coastal Gulf of Alaska, 1998-2011, using cloud-free reconstructions of SeaWiFS and MODIS-Aqua data.
 # Prog. Oceanogr. 116, 179-192.
 #
@@ -758,10 +758,10 @@ head(Arr_df)
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)
 #
 ########################################################################################################
-### Pacific Cod (from NOAA stock assessments): 
-# Metadata column header: female spawning biomass from Table 2.18 – Estimated female spawning biomass (t) 
+### Pacific Cod (from NOAA stock assessments):
+# Metadata column header: female spawning biomass from Table 2.18 – Estimated female spawning biomass (t)
 #                                               from the 2012 assessment and this year’s assessment
-#                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age 
+#                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age
 #                                              (millions) at the time of spawning
 
 URL_PC <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uNURmV3JvT1Y1eFU"
@@ -771,14 +771,14 @@ PC_df <- read.csv(file=textConnection(PC1),stringsAsFactors=FALSE,head=TRUE)
 head(PC_df)
 #
 PC_df <- PC_df %>%
-         rename(Year=year, PCod_female_Bmss_t=female.spawning.biomass, 
+         rename(Year=year, PCod_female_Bmss_t=female.spawning.biomass,
                 PCod_Age1_millions=Age.1.numbers..in.millions.)
-     
+
 #
-CoPrct <- merge(CoPrct,PC_df,all.x=T)  
+CoPrct <- merge(CoPrct,PC_df,all.x=T)
 
 ########################################################################################################
-### Eddy Kinetic Energy (EKE): 
+### Eddy Kinetic Energy (EKE):
 # http://www.gfdl.noaa.gov/wcrp2011_poster_c37_dixon_th85b_eke
 # Metadata column header: Annual Maximum EKE in each region
 #                         Region B: Lat-56.5N to 57.5N, Lon-139W to 137W
@@ -798,7 +798,7 @@ EKE <- EKE_df %>%
        summarize(EKE_ann_max_mean=mean(EKE_ann_max, na.rm=TRUE)) %>% # get annual means
        ungroup()
 #
-CoPrct <- merge(CoPrct,EKE,all.x=T)  
+CoPrct <- merge(CoPrct,EKE,all.x=T)
 
 #########################################################################################################
 # Sharks & Skates
@@ -814,13 +814,13 @@ ShSk1 <- content(ShSk_Get, as='text')
 ShSk_df <- read.csv(file=textConnection(ShSk1),stringsAsFactors=FALSE,head=TRUE)
 head(ShSk_df)
 #
-CoPrct <- merge(CoPrct,ShSk_df,all.x=T) 
+CoPrct <- merge(CoPrct,ShSk_df,all.x=T)
 #########################################################################################################
 # Tanner Crab
 # Data are from Spalinger 2015 (ADFG Fishery Management Report No. 15-27):
 # cite as:
-# Spalinger, K. 2015. Bottom trawl survey of crab and groundfish: Kodiak, Chignik, 
-# South Peninsula, and Eastern Aleutian Management Districts, 2014. Alaska Department of 
+# Spalinger, K. 2015. Bottom trawl survey of crab and groundfish: Kodiak, Chignik,
+# South Peninsula, and Eastern Aleutian Management Districts, 2014. Alaska Department of
 # Fish and Game, Fishery Management Report No. 15-27, Anchorage.
 # Data are abundances pulled from Tables 3 & 7
 URL_TCrab <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7udDlyLTU4dDlwa0U"
@@ -832,7 +832,7 @@ head(TCrab_df)
 TCrab = TCrab_df %>%
   filter(Year != 1988) %>% # some sites not sampled in 1988
   filter(Year != 1995) %>% # some sites not sample in 1995
-  mutate(TotTCrab = KodiakTotalTannerCrabAbund + WesternSectionTotals + 
+  mutate(TotTCrab = KodiakTotalTannerCrabAbund + WesternSectionTotals +
            EasternSectionTotals + SouthPeninsulaDistrictTotals + ChignikDistrictTotals) %>%
   select(Year, TotTCrab)
 View(TCrab)
