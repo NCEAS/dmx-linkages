@@ -164,6 +164,43 @@ CoPrct <- merge(CoPrct,SST,all.x=T)
 # Station 46080  NDBC  PORTLOCK BANK- 76NM ENE of Kodiak, AK
 # Station 46078  NDBC  ALBATROSS BANK - 104NM South of Kodiak, AK
 
+# Function to read in all these annual bouy data text files, and make data frames of them.
+BuoyData <- function(data_url){
+            dataGet <- GET(data_url)
+            data1 <- content(dataGet, as='text')
+         
+            # need to say get year from URL
+            year <- str_sub(data_url,60,63)
+            # also get file name from URL   
+            assign("filename", (paste("D_",str_sub(data_url,54,63),sep="")),
+                   envir=.GlobalEnv)
+         
+            # need to say if year < 2007 do this...
+            if (year < "2007") {
+                    filename <- read.table(file=textConnection(data1),
+                                           stringsAsFactors=FALSE,header=TRUE)
+                  }
+            # and if year >/= 2007 do this...
+            else {#(year >= "2007"),
+                    data_h <- scan(textConnection(data1), nlines=1, what=character())  # reads first header line
+                    data_h <- gsub("#YY", "YYYY", data_h)  # gets rid of column name with # in it
+                    filename <- read.table(file=textConnection(data1),
+                                           stringsAsFactors=FALSE,skip=2,header=FALSE)
+                    names(filename) <- data_h   # pastes the header line in
+                    filename <- rename(filename, WD=WDIR, BAR=PRES)
+                  }
+            
+            return(filename)
+            }
+
+S76_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2010.txt.gz&dir=data/historical/stdmet/"
+
+BuoyData(S76_10)
+
+
+
+
+
 ### Station 46076 
 # NOTE: The 2005 data starts in June
 URLS76_05 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2005.txt.gz&dir=data/historical/stdmet/"
