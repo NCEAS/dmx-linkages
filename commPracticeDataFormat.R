@@ -1,5 +1,5 @@
 ################################################################
-## Communities of Practice data compilation
+## Communities of Practice data compilation script
 ## created 24 Aug 2015
 ## This will replace the spreadsheet started on Google Drive.
 ################################################################
@@ -14,13 +14,33 @@ library(rvest)
 library(tidyr)
 library(stringr)
 
-#zach=kook...still
+## Steps for adding data columns:
+## 1) create empty data frame
+## 2) run each data cleaning script to generate data frames
+## 3) merge all data frames with CoPrct dataframe:   
+##        CoPrct=merge(CoPrct,newData,all.x=T)  
 
-## create empty data frame with Year column
+
+# Create empty data frame with Year column
 CoPrct=data.frame('Year'=c(1975:2015))
 
-## Steps for adding data columns:
-## 1) merge with CoPrct dataframe:   CoPrct=merge(CoPrct,newData,all.x=T)  # rename new df CoPrct
+# Call and run each data cleaning script
+          # source the scripts
+          # run each script to generate a data frame
+          # put all those data frames somewhere so that they can be merged later
+
+# Merge all data frames into one large data frame
+CoPrct <- merge(CoPrct,NPI,all.x=T) # North Pacific Index of sea level pressure
+CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)  # Annual mean wind - Central GOA
+CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)  # Winter mean wind - Central GOA
+CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)   # ENSO annual index
+CoPrct <- merge(CoPrct,npgo_annual,all.x=T)  # North Pacific Gyre Oscillation
+CoPrct <- merge(CoPrct,pdo_annual,all.x=T)   # Pacific Decadal Oscillation
+CoPrct <- merge(CoPrct,upanom,all.x=T)    # Pacific Upwelling Anomalies
+CoPrct <- merge(CoPrct,PC_df,all.x=T)    # Pacific Cod Stock Assessment
+CoPrct <- merge(CoPrct,EKE,all.x=T)    # Eddy Kinetic Energy - Central GOA
+
+
 
 ############################################################################################
 # PWS wild Pink Salmon SSB:
@@ -95,10 +115,6 @@ kingDf=salmonDf %>%
 CoPrct <- merge(CoPrct,kingDf,all.x=T)
 
 ###############################################################################################
-
-CoPrct <- merge(CoPrct,NPI,all.x=T) # North Pacific Index of sea level pressure
-
-###############################################################################################
 ###  Water Temperature (SST):
 URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
 TGet <- GET(URL_T)
@@ -135,28 +151,6 @@ SST <- Temps %>%
 #
 CoPrct <- merge(CoPrct,SST,all.x=T)
 
-
-##############################################################################################
-
-CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)  # Annual mean wind
-CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)  # Winter mean wind
-
-
-###############################################################################################
-
-CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)
-
-##############################################################################################
-
-CoPrct <- merge(CoPrct,npgo_annual,all.x=T)
-
-##############################################################################################
-
-CoPrct <- merge(CoPrct,pdo_annual,all.x=T)
-
-###############################################################################################
-
-CoPrct <- merge(CoPrct,upanom,all.x=T)
 
 ###############################################################################################
 ### Stellar Sea Lions:
@@ -325,30 +319,6 @@ head(Arr_df)
 #
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)
 #
-########################################################################################################
-### Pacific Cod (from NOAA stock assessments):
-# Metadata column header: female spawning biomass from Table 2.18 – Estimated female spawning biomass (t)
-#                                               from the 2012 assessment and this year’s assessment
-#                         Age 1 numbers in millins from Table Table 2.20 – Estimated numbers-at-age
-#                                              (millions) at the time of spawning
-
-URL_PC <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uNURmV3JvT1Y1eFU"
-PC_Get <- GET(URL_PC)
-PC1 <- content(PC_Get, as='text')
-PC_df <- read.csv(file=textConnection(PC1),stringsAsFactors=FALSE,head=TRUE)
-head(PC_df)
-#
-PC_df <- PC_df %>%
-         rename(Year=year, PCod_female_Bmss_t=female.spawning.biomass,
-                PCod_Age1_millions=Age.1.numbers..in.millions.)
-
-#
-CoPrct <- merge(CoPrct,PC_df,all.x=T)
-
-########################################################################################################
-
-CoPrct <- merge(CoPrct,EKE,all.x=T)
-
 #########################################################################################################
 # Sharks & Skates
 # Skates = total skate BIOMASS (tons) from GoA Large Mesh Trawl surveys
@@ -385,6 +355,7 @@ TCrab = TCrab_df %>%
            EasternSectionTotals + SouthPeninsulaDistrictTotals + ChignikDistrictTotals) %>%
   select(Year, TotTCrab)
 View(TCrab)
+#
 CoPrct <- merge(CoPrct,TCrab,all.x=T)
 #########################################################################################################
 # Halibut Fishery Data
