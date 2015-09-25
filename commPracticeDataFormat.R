@@ -161,326 +161,89 @@ CoPrct <- merge(CoPrct,SST,all.x=T)
 
 # selected buoys in central Gulf of Alaska:
 # Station 46076  NDBC  CAPE CLEARE - 17 NM South of Montague Is, AK
+      # NOTE: The 2005 data starts in June
 # Station 46080  NDBC  PORTLOCK BANK- 76NM ENE of Kodiak, AK
+      # NOTE: Data starts in August of 2002
+      # NOTE: 2013 data missing from online http://www.ndbc.noaa.gov/station_history.php?station=46080
 # Station 46078  NDBC  ALBATROSS BANK - 104NM South of Kodiak, AK
+      # NOTE: Data starts in May 2004
 
+
+#############
 # Function to read in all these annual bouy data text files, and make data frames of them.
 BuoyData <- function(data_url){
             dataGet <- GET(data_url)
             data1 <- content(dataGet, as='text')
 
             # need to say get year from URL
-            year <- str_sub(data_url,60,63)
-            # also get file name from URL
-            filename <- paste("D_",str_sub(data_url,54,63),sep="")
+            year <- as.numeric(str_sub(data_url,60,63))
+            # get buoy number from URL
+            buoynum <- str_sub(data_url,54,58)
 
             # need to say if year < 2007 do this...
-            if (year < "2007") {
-                    df <- read.table(file=textConnection(data1),
-                                           stringsAsFactors=FALSE,header=TRUE)
-            }
+            if (year < 2007) {
+                              df <- read.table(file=textConnection(data1),
+                                               stringsAsFactors=FALSE,header=TRUE)
+                              df$BuoyID <- rep(buoynum,nrow(df))
+                              }
             # and if year >/= 2007 do this...
-            else {#(year >= "2007"),
-                    data_h <- scan(textConnection(data1), nlines=1, what=character())  # reads first header line
-                    data_h <- gsub("#YY", "YYYY", data_h)  # gets rid of column name with # in it
-                    df <- read.table(file=textConnection(data1),
-                                           stringsAsFactors=FALSE,skip=2,header=FALSE)
-                    names(df) <- data_h   # pastes the header line in
-                    df <- rename(df, WD=WDIR, BAR=PRES)
+            else {
+                  data_h <- scan(textConnection(data1), nlines=1, what=character())  # reads first header line
+                  data_h <- gsub("#YY", "YYYY", data_h)  # gets rid of column name with # in it
+                  df <- read.table(file=textConnection(data1),
+                                   stringsAsFactors=FALSE,skip=2,header=FALSE)
+                  names(df) <- data_h   # pastes the header line in
+                  df$BuoyID <- rep(buoynum,nrow(df))
+                  df <- rename(df, WD=WDIR, BAR=PRES)
                   }
-            ## assign(filename, df, envir=.GlobalEnv)
 
             return(df)
-}
+            }
+#############
 
-S76_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2010.txt.gz&dir=data/historical/stdmet/"
+# List of URLs from which to pull the text files
+B_URLs <- list("http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2005.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2006.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2007.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2008.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2009.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2010.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2011.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2012.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2013.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2014.txt.gz&dir=data/historical/stdmet/",
+               #
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2002.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2003.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2004.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2005.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2006.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2007.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2008.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2009.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2010.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2011.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2012.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2014.txt.gz&dir=data/historical/stdmet/",
+               #
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2004.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2005.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2006.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2007.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2008.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2009.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2010.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2011.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2012.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2013.txt.gz&dir=data/historical/stdmet/",
+               "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2014.txt.gz&dir=data/historical/stdmet/"
+               ) 
 
-BuoyData(S76_10)
 
+Buoy_df_list <- lapply(B_URLs, FUN=BuoyData) # for every element of the list of URLs run my function
 
+Buoys_all <- bind_rows(Buoy_df_list) # bind the list of dataframes output by lapply() into one large dataframe
 
-
-
-### Station 46076
-# NOTE: The 2005 data starts in June
-URLS76_05 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2005.txt.gz&dir=data/historical/stdmet/"
-S76_05Get <- GET(URLS76_05)
-S76_051 <- content(S76_05Get, as='text')
-S76_05 <- read.table(file=textConnection(S76_051),stringsAsFactors=FALSE,header=TRUE)
-
-URLS76_06 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2006.txt.gz&dir=data/historical/stdmet/"
-S76_06Get <- GET(URLS76_06)
-S76_061 <- content(S76_06Get, as='text')
-S76_06 <- read.table(file=textConnection(S76_061),stringsAsFactors=FALSE,header=TRUE)
-
-URLS76_07 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2007.txt.gz&dir=data/historical/stdmet/"
-S76_07Get <- GET(URLS76_07)
-S76_071 <- content(S76_07Get, as='text')
-S76_07_h <- scan(textConnection(S76_071), nlines=1, what=character())  # reads first header line
-S76_07_h <- gsub("#YY", "YYYY", S76_07_h)  # gets rid of column name with # in it
-#S76_07_units <- scan(textConnection(S76_071), skip=1, nlines=1, what=character()) #reads second header line
-S76_07 <- read.table(file=textConnection(S76_071),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_07) <- S76_07_h   # pastes the header line in
-S76_07 <- rename(S76_07, WD=WDIR, BAR=PRES)
-
-URLS76_08 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2008.txt.gz&dir=data/historical/stdmet/"
-S76_08Get <- GET(URLS76_08)
-S76_081 <- content(S76_08Get, as='text')
-S76_08_h <- scan(textConnection(S76_081), nlines=1, what=character())  # reads first header line
-S76_08_h <- gsub("#YY", "YYYY", S76_08_h)  # gets rid of column name with # in it
-S76_08 <- read.table(file=textConnection(S76_081),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_08) <- S76_08_h   # pastes the header line in
-S76_08 <- rename(S76_08, WD=WDIR, BAR=PRES)
-
-URLS76_09 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2009.txt.gz&dir=data/historical/stdmet/"
-S76_09Get <- GET(URLS76_09)
-S76_091 <- content(S76_09Get, as='text')
-S76_09_h <- scan(textConnection(S76_091), nlines=1, what=character())  # reads first header line
-S76_09_h <- gsub("#YY", "YYYY", S76_09_h)  # gets rid of column name with # in it
-S76_09 <- read.table(file=textConnection(S76_091),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_09) <- S76_09_h   # pastes the header line in
-S76_09 <- rename(S76_09, WD=WDIR, BAR=PRES)
-
-URLS76_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2010.txt.gz&dir=data/historical/stdmet/"
-S76_10Get <- GET(URLS76_10)
-S76_101 <- content(S76_10Get, as='text')
-S76_10_h <- scan(textConnection(S76_101), nlines=1, what=character())  # reads first header line
-S76_10_h <- gsub("#YY", "YYYY", S76_10_h)  # gets rid of column name with # in it
-S76_10 <- read.table(file=textConnection(S76_101),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_10) <- S76_10_h   # pastes the header line in
-S76_10 <- rename(S76_10, WD=WDIR, BAR=PRES)
-
-URLS76_11 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2011.txt.gz&dir=data/historical/stdmet/"
-S76_11Get <- GET(URLS76_11)
-S76_111 <- content(S76_11Get, as='text')
-S76_11_h <- scan(textConnection(S76_111), nlines=1, what=character())  # reads first header line
-S76_11_h <- gsub("#YY", "YYYY", S76_11_h)  # gets rid of column name with # in it
-S76_11 <- read.table(file=textConnection(S76_111),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_11) <- S76_11_h   # pastes the header line in
-S76_11 <- rename(S76_11, WD=WDIR, BAR=PRES)
-
-URLS76_12 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2012.txt.gz&dir=data/historical/stdmet/"
-S76_12Get <- GET(URLS76_12)
-S76_121 <- content(S76_12Get, as='text')
-S76_12_h <- scan(textConnection(S76_121), nlines=1, what=character())  # reads first header line
-S76_12_h <- gsub("#YY", "YYYY", S76_12_h)  # gets rid of column name with # in it
-S76_12 <- read.table(file=textConnection(S76_121),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_12) <- S76_12_h   # pastes the header line in
-S76_12 <- rename(S76_12, WD=WDIR, BAR=PRES)
-
-URLS76_13 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2013.txt.gz&dir=data/historical/stdmet/"
-S76_13Get <- GET(URLS76_13)
-S76_131 <- content(S76_13Get, as='text')
-S76_13_h <- scan(textConnection(S76_131), nlines=1, what=character())  # reads first header line
-S76_13_h <- gsub("#YY", "YYYY", S76_13_h)  # gets rid of column name with # in it
-S76_13 <- read.table(file=textConnection(S76_131),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_13) <- S76_13_h   # pastes the header line in
-S76_13 <- rename(S76_13, WD=WDIR, BAR=PRES)
-
-URLS76_14 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46076h2014.txt.gz&dir=data/historical/stdmet/"
-S76_14Get <- GET(URLS76_14)
-S76_141 <- content(S76_14Get, as='text')
-S76_14_h <- scan(textConnection(S76_141), nlines=1, what=character())  # reads first header line
-S76_14_h <- gsub("#YY", "YYYY", S76_14_h)  # gets rid of column name with # in it
-S76_14 <- read.table(file=textConnection(S76_141),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S76_14) <- S76_14_h   # pastes the header line in
-S76_14 <- rename(S76_14, WD=WDIR, BAR=PRES)
-
-# bind all years into one data frame
-CC <- bind_rows(S76_05,S76_06,S76_07,S76_08,S76_09,S76_10,S76_11,S76_12,S76_13,S76_14)
-head(CC) ; str(CC)
-
-### Station 46080
-# NOTE: Data starts in August of 2002
-URLS80_02 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2002.txt.gz&dir=data/historical/stdmet/"
-S80_02Get <- GET(URLS80_02)
-S80_021 <- content(S80_02Get, as='text')
-S80_02 <- read.table(file=textConnection(S80_021),stringsAsFactors=FALSE,header=TRUE)
-
-URLS80_03 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2003.txt.gz&dir=data/historical/stdmet/"
-S80_03Get <- GET(URLS80_03)
-S80_031 <- content(S80_03Get, as='text')
-S80_03 <- read.table(file=textConnection(S80_031),stringsAsFactors=FALSE,header=TRUE)
-
-URLS80_04 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2004.txt.gz&dir=data/historical/stdmet/"
-S80_04Get <- GET(URLS80_04)
-S80_041 <- content(S80_04Get, as='text')
-S80_04 <- read.table(file=textConnection(S80_041),stringsAsFactors=FALSE,header=TRUE)
-
-URLS80_05 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2005.txt.gz&dir=data/historical/stdmet/"
-S80_05Get <- GET(URLS80_05)
-S80_051 <- content(S80_05Get, as='text')
-S80_05 <- read.table(file=textConnection(S80_051),stringsAsFactors=FALSE,header=TRUE)
-
-URLS80_06 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2006.txt.gz&dir=data/historical/stdmet/"
-S80_06Get <- GET(URLS80_06)
-S80_061 <- content(S80_06Get, as='text')
-S80_06 <- read.table(file=textConnection(S80_061),stringsAsFactors=FALSE,header=TRUE)
-
-URLS80_07 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2007.txt.gz&dir=data/historical/stdmet/"
-S80_07Get <- GET(URLS80_07)
-S80_071 <- content(S80_07Get, as='text')
-S80_07_h <- scan(textConnection(S80_071), nlines=1, what=character())  # reads first header line
-S80_07_h <- gsub("#YY", "YYYY", S80_07_h)  # gets rid of column name with # in it
-S80_07 <- read.table(file=textConnection(S80_071),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_07) <- S80_07_h   # pastes the header line in
-S80_07 <- rename(S80_07, WD=WDIR, BAR=PRES)
-
-URLS80_08 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2008.txt.gz&dir=data/historical/stdmet/"
-S80_08Get <- GET(URLS80_08)
-S80_081 <- content(S80_08Get, as='text')
-S80_08_h <- scan(textConnection(S80_081), nlines=1, what=character())  # reads first header line
-S80_08_h <- gsub("#YY", "YYYY", S80_08_h)  # gets rid of column name with # in it
-S80_08 <- read.table(file=textConnection(S80_081),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_08) <- S80_08_h   # pastes the header line in
-S80_08 <- rename(S80_08, WD=WDIR, BAR=PRES)
-
-URLS80_09 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2009.txt.gz&dir=data/historical/stdmet/"
-S80_09Get <- GET(URLS80_09)
-S80_091 <- content(S80_09Get, as='text')
-S80_09_h <- scan(textConnection(S80_091), nlines=1, what=character())  # reads first header line
-S80_09_h <- gsub("#YY", "YYYY", S80_09_h)  # gets rid of column name with # in it
-S80_09 <- read.table(file=textConnection(S80_091),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_09) <- S80_09_h   # pastes the header line in
-S80_09 <- rename(S80_09, WD=WDIR, BAR=PRES)
-
-URLS80_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2010.txt.gz&dir=data/historical/stdmet/"
-S80_10Get <- GET(URLS80_10)
-S80_101 <- content(S80_10Get, as='text')
-S80_10_h <- scan(textConnection(S80_101), nlines=1, what=character())  # reads first header line
-S80_10_h <- gsub("#YY", "YYYY", S80_10_h)  # gets rid of column name with # in it
-S80_10 <- read.table(file=textConnection(S80_101),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_10) <- S80_10_h   # pastes the header line in
-S80_10 <- rename(S80_10, WD=WDIR, BAR=PRES)
-
-URLS80_11 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2011.txt.gz&dir=data/historical/stdmet/"
-S80_11Get <- GET(URLS80_11)
-S80_111 <- content(S80_11Get, as='text')
-S80_11_h <- scan(textConnection(S80_111), nlines=1, what=character())  # reads first header line
-S80_11_h <- gsub("#YY", "YYYY", S80_11_h)  # gets rid of column name with # in it
-S80_11 <- read.table(file=textConnection(S80_111),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_11) <- S80_11_h   # pastes the header line in
-S80_11 <- rename(S80_11, WD=WDIR, BAR=PRES)
-
-URLS80_12 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2012.txt.gz&dir=data/historical/stdmet/"
-S80_12Get <- GET(URLS80_12)
-S80_121 <- content(S80_12Get, as='text')
-S80_12_h <- scan(textConnection(S80_121), nlines=1, what=character())  # reads first header line
-S80_12_h <- gsub("#YY", "YYYY", S80_12_h)  # gets rid of column name with # in it
-S80_12 <- read.table(file=textConnection(S80_121),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_12) <- S80_12_h   # pastes the header line in
-S80_12 <- rename(S80_12, WD=WDIR, BAR=PRES)
-
-# NOTE: 2013 data missing from online http://www.ndbc.noaa.gov/station_history.php?station=46080
-
-URLS80_14 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46080h2014.txt.gz&dir=data/historical/stdmet/"
-S80_14Get <- GET(URLS80_14)
-S80_141 <- content(S80_14Get, as='text')
-S80_14_h <- scan(textConnection(S80_141), nlines=1, what=character())  # reads first header line
-S80_14_h <- gsub("#YY", "YYYY", S80_14_h)  # gets rid of column name with # in it
-S80_14 <- read.table(file=textConnection(S80_141),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S80_14) <- S80_14_h   # pastes the header line in
-S80_14 <- rename(S80_14, WD=WDIR, BAR=PRES)
-
-# bind all years into one data frame
-PB <- bind_rows(S80_02,S80_03,S80_04,S80_05,S80_06,S80_07,S80_08,S80_09,S80_10,S80_11,S80_12,S80_14)
-head(PB) ; str(PB)
-
-### Station 46078
-# NOTE: Data starts in May 2004
-URLS78_04 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2004.txt.gz&dir=data/historical/stdmet/"
-S78_04Get <- GET(URLS78_04)
-S78_041 <- content(S78_04Get, as='text')
-S78_04 <- read.table(file=textConnection(S78_041),stringsAsFactors=FALSE,header=TRUE)
-
-URLS78_05 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2005.txt.gz&dir=data/historical/stdmet/"
-S78_05Get <- GET(URLS78_05)
-S78_051 <- content(S78_05Get, as='text')
-S78_05 <- read.table(file=textConnection(S78_051),stringsAsFactors=FALSE,header=TRUE)
-
-URLS78_06 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2006.txt.gz&dir=data/historical/stdmet/"
-S78_06Get <- GET(URLS78_06)
-S78_061 <- content(S78_06Get, as='text')
-S78_06 <- read.table(file=textConnection(S78_061),stringsAsFactors=FALSE,header=TRUE)
-
-URLS78_07 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2007.txt.gz&dir=data/historical/stdmet/"
-S78_07Get <- GET(URLS78_07)
-S78_071 <- content(S78_07Get, as='text')
-S78_07_h <- scan(textConnection(S78_071), nlines=1, what=character())  # reads first header line
-S78_07_h <- gsub("#YY", "YYYY", S78_07_h)  # gets rid of column name with # in it
-S78_07 <- read.table(file=textConnection(S78_071),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_07) <- S78_07_h   # pastes the header line in
-S78_07 <- rename(S78_07, WD=WDIR, BAR=PRES)
-
-URLS78_08 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2008.txt.gz&dir=data/historical/stdmet/"
-S78_08Get <- GET(URLS78_08)
-S78_081 <- content(S78_08Get, as='text')
-S78_08_h <- scan(textConnection(S78_081), nlines=1, what=character())  # reads first header line
-S78_08_h <- gsub("#YY", "YYYY", S78_08_h)  # gets rid of column name with # in it
-S78_08 <- read.table(file=textConnection(S78_081),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_08) <- S78_08_h   # pastes the header line in
-S78_08 <- rename(S78_08, WD=WDIR, BAR=PRES)
-
-URLS78_09 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2009.txt.gz&dir=data/historical/stdmet/"
-S78_09Get <- GET(URLS78_09)
-S78_091 <- content(S78_09Get, as='text')
-S78_09_h <- scan(textConnection(S78_091), nlines=1, what=character())  # reads first header line
-S78_09_h <- gsub("#YY", "YYYY", S78_09_h)  # gets rid of column name with # in it
-S78_09 <- read.table(file=textConnection(S78_091),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_09) <- S78_09_h   # pastes the header line in
-S78_09 <- rename(S78_09, WD=WDIR, BAR=PRES)
-
-URLS78_10 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2010.txt.gz&dir=data/historical/stdmet/"
-S78_10Get <- GET(URLS78_10)
-S78_101 <- content(S78_10Get, as='text')
-S78_10_h <- scan(textConnection(S78_101), nlines=1, what=character())  # reads first header line
-S78_10_h <- gsub("#YY", "YYYY", S78_10_h)  # gets rid of column name with # in it
-S78_10 <- read.table(file=textConnection(S78_101),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_10) <- S78_10_h   # pastes the header line in
-S78_10 <- rename(S78_10, WD=WDIR, BAR=PRES)
-
-URLS78_11 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2011.txt.gz&dir=data/historical/stdmet/"
-S78_11Get <- GET(URLS78_11)
-S78_111 <- content(S78_11Get, as='text')
-S78_11_h <- scan(textConnection(S78_111), nlines=1, what=character())  # reads first header line
-S78_11_h <- gsub("#YY", "YYYY", S78_11_h)  # gets rid of column name with # in it
-S78_11 <- read.table(file=textConnection(S78_111),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_11) <- S78_11_h   # pastes the header line in
-S78_11 <- rename(S78_11, WD=WDIR, BAR=PRES)
-
-URLS78_12 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2012.txt.gz&dir=data/historical/stdmet/"
-S78_12Get <- GET(URLS78_12)
-S78_121 <- content(S78_12Get, as='text')
-S78_12_h <- scan(textConnection(S78_121), nlines=1, what=character())  # reads first header line
-S78_12_h <- gsub("#YY", "YYYY", S78_12_h)  # gets rid of column name with # in it
-S78_12 <- read.table(file=textConnection(S78_121),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_12) <- S78_12_h   # pastes the header line in
-S78_12 <- rename(S78_12, WD=WDIR, BAR=PRES)
-
-URLS78_13 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2013.txt.gz&dir=data/historical/stdmet/"
-S78_13Get <- GET(URLS78_13)
-S78_131 <- content(S78_13Get, as='text')
-S78_13_h <- scan(textConnection(S78_131), nlines=1, what=character())  # reads first header line
-S78_13_h <- gsub("#YY", "YYYY", S78_13_h)  # gets rid of column name with # in it
-S78_13 <- read.table(file=textConnection(S78_131),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_13) <- S78_13_h   # pastes the header line in
-S78_13 <- rename(S78_13, WD=WDIR, BAR=PRES)
-
-URLS78_14 <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46078h2014.txt.gz&dir=data/historical/stdmet/"
-S78_14Get <- GET(URLS78_14)
-S78_141 <- content(S78_14Get, as='text')
-S78_14_h <- scan(textConnection(S78_141), nlines=1, what=character())  # reads first header line
-S78_14_h <- gsub("#YY", "YYYY", S78_14_h)  # gets rid of column name with # in it
-S78_14 <- read.table(file=textConnection(S78_141),stringsAsFactors=FALSE,skip=2,header=FALSE)
-names(S78_14) <- S78_14_h   # pastes the header line in
-S78_14 <- rename(S78_14, WD=WDIR, BAR=PRES)
-
-# bind all years into one data frame
-AB <- bind_rows(S78_04,S78_05,S78_06,S78_07,S78_08,S78_09,S78_10,S78_11,S78_12,S78_13,S78_14)
-head(AB) ; str(AB)
-
-# bind data from three buoys together
-Buoys_all <- bind_rows(CC,PB,AB)
 
 #
 Wind_Ann <- Buoys_all %>%
