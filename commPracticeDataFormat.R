@@ -53,6 +53,7 @@ CoPrct <- merge(CoPrct,Shr_df,all.x=T)   # Pink shrimp
 CoPrct <- merge(CoPrct,ShSk_df,all.x=T)  # Sharks and Skates
 CoPrct <- merge(CoPrct,SSL,all.x=T)    # Stellar Sea Lions
 CoPrct <- merge(CoPrct,Chl_df,all.x=T)  # Chla anomalies from satellites
+CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T) # Halibut catch data from fishery
 
 
 
@@ -119,16 +120,6 @@ head(CapelinBiomass)
 #
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 
-
-#########################################################################################################
-# Halibut Fishery Data
-URL_HlbtFishery <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uY0JVVHQxSWxXYVU"
-HlbtFishery_Get <- GET(URL_HlbtFishery)
-HlbtFishery1 <- content(HlbtFishery_Get, as='text')
-HlbtFishery_df <- read.csv(file=textConnection(HlbtFishery1),stringsAsFactors=FALSE,head=TRUE)
-head(HlbtFishery_df)
-#
-CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T)
 #########################################################################################################
 # Pollock Fishery Data
 URL_PollFishery <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ual9URUl0THRBUGs"
