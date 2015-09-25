@@ -15,19 +15,21 @@ library(tidyr)
 library(stringr)
 
 ## Steps for adding data columns:
-## 1) create empty data frame
-## 2) run each data cleaning script to generate data frames
+## 1) run each data cleaning script to generate data frames
+## 2) create empty data frame
 ## 3) merge all data frames with CoPrct dataframe:   
 ##        CoPrct=merge(CoPrct,newData,all.x=T)  
 
-
-# Create empty data frame with Year column
-CoPrct=data.frame('Year'=c(1975:2015))
 
 # Call and run each data cleaning script
           # source the scripts
           # run each script to generate a data frame
           # put all those data frames somewhere so that they can be merged later
+
+
+# Create empty data frame with Year column
+CoPrct=data.frame('Year'=c(1975:2015))
+
 
 # Merge all data frames into one large data frame
 CoPrct <- merge(CoPrct,NPI,all.x=T) # North Pacific Index of sea level pressure
@@ -50,6 +52,8 @@ CoPrct <- merge(CoPrct,kingDf,all.x=T)  # King salmon catch data
 CoPrct <- merge(CoPrct,Shr_df,all.x=T)   # Pink shrimp 
 CoPrct <- merge(CoPrct,ShSk_df,all.x=T)  # Sharks and Skates
 CoPrct <- merge(CoPrct,SSL,all.x=T)    # Stellar Sea Lions
+CoPrct <- merge(CoPrct,Chl_df,all.x=T)  # Chla anomalies from satellites
+
 
 
 
@@ -115,21 +119,6 @@ head(CapelinBiomass)
 #
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 
-########################################################################################################
-# Mean annual Chl a anomalies (mg/m3) for Gulf of Alaska
-# From Waite & Mueter 2013, Fig 11 Annual
-# Waite, J.N. and Mueter, F.J. 2013. Spatial and temporal variability of chlorophyll-a concentrations
-# in the coastal Gulf of Alaska, 1998-2011, using cloud-free reconstructions of SeaWiFS and MODIS-Aqua data.
-# Prog. Oceanogr. 116, 179-192.
-#
-URL_Chl <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uRHdOTGQtSVBQOE0"
-ChlGet <- GET(URL_Chl)
-Chl1 <- content(ChlGet, as='text')
-Chl_df <- read.csv(file=textConnection(Chl1),stringsAsFactors=FALSE)
-head(Chl_df)
-#
-CoPrct <- merge(CoPrct,Chl_df,all.x=T)
-#
 
 #########################################################################################################
 # Halibut Fishery Data
