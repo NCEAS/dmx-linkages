@@ -40,6 +40,12 @@ CoPrct <- merge(CoPrct,upanom,all.x=T)    # Pacific Upwelling Anomalies
 CoPrct <- merge(CoPrct,PC_df,all.x=T)    # Pacific Cod Stock Assessment
 CoPrct <- merge(CoPrct,EKE,all.x=T)    # Eddy Kinetic Energy - Central GOA
 CoPrct <- merge(CoPrct,TCrab,all.x=T)    # Tanner Crab Abundance 
+CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
+
+
+
+# Optional: Write data frame to a CSV
+#write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
 
 
 ############################################################################################
@@ -113,43 +119,6 @@ kingDf=salmonDf %>%
 #
 
 CoPrct <- merge(CoPrct,kingDf,all.x=T)
-
-###############################################################################################
-###  Water Temperature (SST):
-URL_T <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.31.1"
-TGet <- GET(URL_T)
-T1 <- content(TGet, as='text')
-Tmps <- read.csv(file=textConnection(T1),stringsAsFactors=FALSE,strip.white=TRUE)
-head(Tmps)
-
-URL_Ts <- "http://gulfwatch.nceas.ucsb.edu/goa/d1/mn/v1/object/df35b.32.2"
-TsGet <- GET(URL_Ts)
-Ts1 <- content(TsGet, as='text')
-TmpSams <- read.csv(file=textConnection(Ts1),stringsAsFactors=FALSE,strip.white=TRUE)
-head(TmpSams)
-#
-Temps <- merge(Tmps, TmpSams, all.x=TRUE)  # merge sample information with data values
-Temps$Date <- sapply((strsplit(as.character(Temps$dateTime), split=" ")), function(x) x[1]) # split date out
-head(Temps)
-
-############################################
-### NOTE : Need to deal with missing sample info for cruiseID TXS09, consecStationNum 3
-############################################
-# missing_date <- filter(Temps, is.na(dateTime))  # selects data with missing dates
-# miss_cID <- unique(missing_date$cruiseID) # selects the cruise IDs for which sample info is missing
-
-
-SST <- Temps %>%
-             mutate(Year=sapply((strsplit(as.character(Date), split="/")),
-                                function(x) x[3])) %>%   # creates Year column
-             arrange(dateTime) %>%
-             rename(WTemp_C=temp) %>%
-             group_by(Year) %>%
-             summarise(WTemp_C_AnnMn=mean(WTemp_C)) %>% # get annual means
-             ungroup() %>%
-             select(Year, WTemp_C_AnnMn)  # selects columns wanted
-#
-CoPrct <- merge(CoPrct,SST,all.x=T)
 
 
 ###############################################################################################
@@ -355,4 +324,3 @@ head(PollFishery_df)
 CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)
 #########################################################################################################
 
-write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
