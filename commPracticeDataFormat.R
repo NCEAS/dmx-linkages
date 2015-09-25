@@ -20,9 +20,7 @@ library(stringr)
 CoPrct=data.frame('Year'=c(1975:2015))
 
 ## Steps for adding data columns:
-## 1) read in data
-## 2) format to annual estimates (2 column dataframe with cols=Year,spEstimate)
-## 3) merge with CoPrct dataframe:   CoPrct=merge(CoPrct,newData,all.x=T)  # rename new df CoPrct
+## 1) merge with CoPrct dataframe:   CoPrct=merge(CoPrct,newData,all.x=T)  # rename new df CoPrct
 
 ############################################################################################
 # PWS wild Pink Salmon SSB:
@@ -97,26 +95,8 @@ kingDf=salmonDf %>%
 CoPrct <- merge(CoPrct,kingDf,all.x=T)
 
 ###############################################################################################
-### North Pacific Index (NPI) for sea level pressure:
-URL_npi <- "https://climatedataguide.ucar.edu/sites/default/files/climate_index_files/npindex_monthly.ascii"
-npiGet <- GET(URL_npi)
-npi1 <- content(npiGet, as='text')
-npi <- read.table(file=textConnection(npi1),stringsAsFactors=F, sep=" ", header=TRUE, fill=TRUE)
-npi[1:50,]
-#
-NPI <- npi %>%
-           rename(YearMon=X, SeaLevelPressure_hPa=and) %>% # rename columns with data
-           select(YearMon, SeaLevelPressure_hPa) %>% # remove columns without data
-           mutate(Year=substring(YearMon,1,4),   # creates Year column
-                  Month=substring(YearMon,5,6)) %>%  # creates Month column
-           filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
-           filter(!is.na(SeaLevelPressure_hPa),
-                  SeaLevelPressure_hPa != -999.00) %>% # remove NA values, and -999 values which are NAs
-           group_by(Year) %>%
-           summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
-           ungroup()
-#
-CoPrct <- merge(CoPrct,NPI,all.x=T)
+
+CoPrct <- merge(CoPrct,NPI,all.x=T) # North Pacific Index of sea level pressure
 
 ###############################################################################################
 ###  Water Temperature (SST):
