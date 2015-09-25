@@ -43,6 +43,8 @@ CoPrct <- merge(CoPrct,TCrab,all.x=T)    # Tanner Crab Abundance
 CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
 CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Adult Pollock
 CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Year 1 Pollock
+CoPrct <- merge(CoPrct,Arr_df,all.x=T)   # Arrowtooth adult biomass 
+
 
 
 
@@ -242,18 +244,7 @@ Shr_df <- Shr_df %>%
 #
 CoPrct <- merge(CoPrct,Shr_df,all.x=T)
 #
-########################################################################################################
-### Arrowtooth adult biomass (age-3 plus; tons)
-# from 2013 SAFE Stock Assessment
-#
-URL_Arr <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uSVh6Rl9FNXFwRm8"
-ArrGet <- GET(URL_Arr)
-Arr1 <- content(ArrGet, as='text')
-Arr_df <- read.csv(file=textConnection(Arr1),stringsAsFactors=FALSE)
-head(Arr_df)
-#
-CoPrct <- merge(CoPrct,Arr_df,all.x=T)
-#
+
 #########################################################################################################
 # Sharks & Skates
 # Skates = total skate BIOMASS (tons) from GoA Large Mesh Trawl surveys
