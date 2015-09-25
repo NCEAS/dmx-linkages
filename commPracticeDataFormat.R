@@ -54,9 +54,7 @@ CoPrct <- merge(CoPrct,ShSk_df,all.x=T)  # Sharks and Skates
 CoPrct <- merge(CoPrct,SSL,all.x=T)    # Stellar Sea Lions
 CoPrct <- merge(CoPrct,Chl_df,all.x=T)  # Chla anomalies from satellites
 CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T) # Halibut catch data from fishery
-
-
-
+CoPrct <- merge(CoPrct,PollFishery_df,all.x=T) # Pollock catch data from fishery
 
 
 
@@ -120,14 +118,5 @@ head(CapelinBiomass)
 #
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
 
-#########################################################################################################
-# Pollock Fishery Data
-URL_PollFishery <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ual9URUl0THRBUGs"
-PollFishery_Get <- GET(URL_PollFishery)
-PollFishery1 <- content(PollFishery_Get, as='text')
-PollFishery_df <- read.csv(file=textConnection(PollFishery1),stringsAsFactors=FALSE,head=TRUE)
-head(PollFishery_df)
-#
-CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)
 #########################################################################################################
 
