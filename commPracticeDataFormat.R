@@ -41,6 +41,8 @@ CoPrct <- merge(CoPrct,PC_df,all.x=T)    # Pacific Cod Stock Assessment
 CoPrct <- merge(CoPrct,EKE,all.x=T)    # Eddy Kinetic Energy - Central GOA
 CoPrct <- merge(CoPrct,TCrab,all.x=T)    # Tanner Crab Abundance 
 CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
+CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Adult Pollock
+CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Year 1 Pollock
 
 
 
@@ -208,42 +210,6 @@ CapelinBiomass <- Fish_df %>%
 head(CapelinBiomass)
 #
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
-
-###############################################################################################
-### Pollock Biomass (from NOAA stock assessments):
-
-# https://github.com/gimoya/theBioBucket-Archives/blob/master/R/txtmining_pdf.R
-# download pdftotxt from
-# ftp://ftp.foolabs.com/pub/xpdf/xpdfbin-win-3.03.zip
-# and extract to your program files folder
-
-#library(tm)
-
-#URL_Pollock <- "http://www.afsc.noaa.gov/REFM/Docs/2014/GOApollock.pdf"
-#PollGet <- GET(URL_Pollock)
-#readPDF(engine="xpdf",)
-
-URL_T19 <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uSFJYVXE0ZGNLaHc"
-PollGet <- GET(URL_T19)
-Poll1 <- content(PollGet, as='text')
-Poll_df <- read.csv(file=textConnection(Poll1),stringsAsFactors=FALSE)
-head(Poll_df)
-#
-Poll_Adult <- Poll_df %>%
-              rename(Poll_Yr3plus_TtlBmss_1000Tons=X3..total.biomass...1.000.t.,
-                     Catch_tons=Catch..t.) %>%
-              filter(!is.na(Year)) %>%
-              select(Year, Poll_Yr3plus_TtlBmss_1000Tons)
-
-Poll_Yr1 <- Poll_df %>%
-            rename(Poll_Age1_recruits_millions=Age.1.recruits..million.,
-                   Catch_tons=Catch..t.) %>%
-            filter(!is.na(Year)) %>%
-            select(Year, Poll_Age1_recruits_millions)
-
-#
-CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # adult pollock
-CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # year 1 pollock
 
 ########################################################################################################
 # Mean annual Chl a anomalies (mg/m3) for Gulf of Alaska
