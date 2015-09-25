@@ -44,85 +44,17 @@ CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
 CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Adult Pollock
 CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Year 1 Pollock
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)   # Arrowtooth adult biomass 
+CoPrct <- merge(CoPrct,WPinks,all.x=T) # PWS pink salmon SSB
+CoPrct <- merge(CoPrct,pinkDf,all.x=T)  # Pink salmon catch data
+CoPrct <- merge(CoPrct,kingDf,all.x=T)  # King salmon catch data
+
+
 
 
 
 
 # Optional: Write data frame to a CSV
 #write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
-
-
-############################################################################################
-# PWS wild Pink Salmon SSB:
-URL_Pinks <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-uVEZya3VTVnE3Wk0"
-PinksGet <- GET(URL_Pinks)
-Pinks1 <- content(PinksGet, as='text')
-WPinks <- read.csv(file=textConnection(Pinks1),stringsAsFactors=F)
-head(WPinks)
-#
-CoPrct <- merge(CoPrct,WPinks,all.x=T) # merge with CoPrct dataframe
-
-############################################################################################
-### Salmon data from ADF&G: http://www.adfg.alaska.gov/index.cfm?adfg=CommercialByFisherySalmon.exvesselquery
-## orig added by Steph Zador
-
-post_url <- "http://www.adfg.alaska.gov/index.cfm?adfg=CommercialByFisherySalmon.exvesselquery"
-post_body <- list(Year="2014", areas= "allareas", speciesx= "allspecies", submit= "Find%20the%20Data")
-html <- POST(post_url, body = post_body, encode = "form")
-akcommdf_2014 <- readHTMLTable(content(html))[[1]]
-
-salmonDf<-data.frame(V1 = character(0),
-                     V2 = character(0),
-                     V3 = character(0),
-                     V4 = character(0),
-                     V5 = character(0),
-                     V6 = character(0),
-                     Year=character(0))
-Year=rep(1994:2014,6)
-selectionDf=as.data.frame(Year) %>%
-  arrange(Year) %>%
-  mutate(area=rep(c('southeast','Prince William Sound','Cook Inlet','kodiak','chignik','AK Peninsula / Aleutian Is.'),21))
-
-acc=1
-for(i in 1:nrow(selectionDf)) {
-  post_body <- list(Year=selectionDf[i,1], areas=selectionDf[i,2], speciesx='allspecies', submit= "Find%20the%20Data")
-  html <- POST(post_url, body = post_body, encode = "form")
-  akSalmonDf <- as.data.frame(readHTMLTable(content(html))[[1]])
-  akSalmonDf$Year<-selectionDf[i,1]
-  salmonDf=rbind(salmonDf,akSalmonDf)
-  acc=acc+1
-}
-colnames(salmonDf)=c('species','aveWtLbs','avePricePerLb','nFishInThousands','lbsFishInThousands','estValueInThousands','Year')
-
-######### Pink salmon catch data #########
-
-pinkDf=salmonDf %>%
-  filter(species=='Pink') %>%
-  group_by(Year)%>%
-  mutate(goaPinkCatchNum=sum(as.numeric(gsub(',','',nFishInThousands)))) %>%
-  mutate(goaPinkCatchLbs=sum(as.numeric(gsub(',','',lbsFishInThousands)))) %>%
-  #group_by(Year) %>%
-  mutate(goaPinkCatchAveSize=mean(as.numeric(as.character(aveWtLbs)))) %>%
-  filter(!duplicated(goaPinkCatchAveSize)) %>%
-  select(Year,goaPinkCatchNum,goaPinkCatchLbs,goaPinkCatchAveSize)
-#
-
-CoPrct <- merge(CoPrct,pinkDf,all.x=T)
-
-######### King/Chinkook salmon data #########
-
-kingDf=salmonDf %>%
-  filter(species %in% c('Chinook','Chinookd','Chinookc')) %>%
-  group_by(Year)%>%
-  mutate(goaKingCatchNum=sum(na.omit(as.numeric(gsub(',','',nFishInThousands))))) %>%
-  mutate(goaKingCatchLbs=sum(as.numeric(gsub(',','',lbsFishInThousands)))) %>%
-  #group_by(Year) %>%
-  mutate(goaKingCatchAveSize=mean(as.numeric(as.character(aveWtLbs)))) %>%
-  filter(!duplicated(goaKingCatchAveSize)) %>%
-  select(Year,goaKingCatchNum,goaKingCatchLbs,goaKingCatchAveSize)
-#
-
-CoPrct <- merge(CoPrct,kingDf,all.x=T)
 
 
 ###############################################################################################
