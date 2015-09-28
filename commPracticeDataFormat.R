@@ -55,9 +55,7 @@ CoPrct <- merge(CoPrct,SSL,all.x=T)    # Stellar Sea Lions
 CoPrct <- merge(CoPrct,Chl_df,all.x=T)  # Chla anomalies from satellites
 CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T) # Halibut catch data from fishery
 CoPrct <- merge(CoPrct,PollFishery_df,all.x=T) # Pollock catch data from fishery
-
-
-
+CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)  # Capelin biomass (from Sarah's EWE model)
 
 
 # Optional: Write data frame to a CSV
@@ -100,23 +98,4 @@ head(MayEuphausiids)
 CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)
 
 ###############################################################################################
-### Fish data from Sarah Gaichas
-# NB Sarah cautions that these data should be used only as placeholders until they're updated
-#
-URL_Fish <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ubGJLYXQwRlR0Ujg"
-FishGet <- GET(URL_Fish)
-Fish1 <- content(FishGet, as='text')
-Fish_df <- read.csv(file=textConnection(Fish1),stringsAsFactors=FALSE)
-head(Fish_df)
-names(Fish_df)
-#
-# extract Capelin biomass
-# units are Biomass (tons/km2) from surveys
-CapelinBiomass <- Fish_df %>%
-  select(Year, Capelin)
-head(CapelinBiomass)
-#
-CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)
-
-#########################################################################################################
 
