@@ -28,14 +28,14 @@ URL_Fish <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7ubGJLYXQ
 FishGet <- GET(URL_Fish)
 Fish1 <- content(FishGet, as='text')
 Fish_df <- read.csv(file=textConnection(Fish1),stringsAsFactors=FALSE)
-head(Fish_df)
-names(Fish_df)
+#head(Fish_df)
+#names(Fish_df)
 #
 # extract Capelin biomass
 # units are Biomass (tons/km2) from surveys
 CapelinBiomass <- Fish_df %>%
   select(Year, Capelin)
-head(CapelinBiomass)
+#head(CapelinBiomass)
 #
 
 

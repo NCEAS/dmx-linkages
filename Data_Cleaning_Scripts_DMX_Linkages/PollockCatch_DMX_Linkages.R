@@ -25,6 +25,7 @@ PollFishery_Get <- GET(URL_PollFishery)
 PollFishery1 <- content(PollFishery_Get, as='text')
 PollFishery_df <- read.csv(file=textConnection(PollFishery1),stringsAsFactors=FALSE,head=TRUE)
 
-
+PollFishery_df <- PollFishery_df %>%
+                  rename(Year=year)
 #
 

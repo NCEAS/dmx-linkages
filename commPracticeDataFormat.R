@@ -21,14 +21,20 @@ library(stringr)
 ##        CoPrct=merge(CoPrct,newData,all.x=T)  
 
 
-# Call and run each data cleaning script
-          # source the scripts
-          # run each script to generate a data frame
-          # put all those data frames somewhere so that they can be merged later
+# Source and run each data cleaning script
+sourceDir <- function(path, trace=TRUE) {
+    for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
+       if(trace) cat(nm,":")
+       source(file.path(path, nm))
+       if(trace) cat("\n")
+    }
+}
+
+sourceDir("Data_Cleaning_Scripts_DMX_Linkages")
 
 
 # Create empty data frame with Year column
-CoPrct=data.frame('Year'=c(1975:2015))
+CoPrct <- data.frame('Year'=c(1975:2015))
 
 
 # Merge all data frames into one large data frame

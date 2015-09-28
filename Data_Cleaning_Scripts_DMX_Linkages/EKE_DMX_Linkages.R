@@ -30,7 +30,7 @@ URL_EKE <- "https://drive.google.com/uc?export=download&id=0By1iaulIAI-uaUExWmkw
 EKE_Get <- GET(URL_EKE)
 EKE1 <- content(EKE_Get, as='text')
 EKE_df <- read.csv(file=textConnection(EKE1),stringsAsFactors=FALSE,head=TRUE)
-head(EKE_df)
+#head(EKE_df)
 #
 EKE <- EKE_df %>%
        rename(Region_D=Region.d, Region_C=Region.c, Region_B=Region.b) %>%

@@ -25,5 +25,6 @@ HlbtFishery_Get <- GET(URL_HlbtFishery)
 HlbtFishery1 <- content(HlbtFishery_Get, as='text')
 HlbtFishery_df <- read.csv(file=textConnection(HlbtFishery1),stringsAsFactors=FALSE,head=TRUE)
 
-
+HlbtFishery_df <- HlbtFishery_df %>%
+                  rename(Year=year)
 #
