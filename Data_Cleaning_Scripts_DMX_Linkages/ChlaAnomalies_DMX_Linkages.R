@@ -37,6 +37,7 @@ str(Chl_df)
 
 # calculate means across western offshelf, western onshelf, and central regions:
 AnnChl = Chl_df %>%
+  rename(Year=year) %>%
   mutate(AnnChl = rowMeans(Chl_df[,2:4])) %>%
-  select(year, AnnChl)
+  select(Year, AnnChl)
 View(AnnChl)
