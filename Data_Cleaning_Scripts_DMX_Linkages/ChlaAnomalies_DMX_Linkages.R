@@ -32,8 +32,6 @@ URL_Chl <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uMjNnWnZG
 ChlGet <- GET(URL_Chl)
 Chl1 <- content(ChlGet, as='text')
 Chl_df <- read.csv(file=textConnection(Chl1),stringsAsFactors=FALSE)
-View(Chl_df)
-str(Chl_df)
 
 # calculate means across western offshelf, western onshelf, and central regions:
 AnnChl = Chl_df %>%
