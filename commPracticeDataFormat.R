@@ -52,6 +52,7 @@ CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
 CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Adult Pollock
 CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Year 1 Pollock
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)   # Arrowtooth adult biomass 
+CoPrct <- merge(CoPrct,ArrFishery_df,all.x=T)   # Arrowtooth fishery data
 CoPrct <- merge(CoPrct,WPinks,all.x=T) # PWS pink salmon SSB
 CoPrct <- merge(CoPrct,pinkDf,all.x=T)  # Pink salmon catch data
 CoPrct <- merge(CoPrct,kingDf,all.x=T)  # King salmon catch data
@@ -67,7 +68,7 @@ CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)  # Euphausids - May
 
 
 # Optional: Write data frame to a CSV
-#write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
+write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
 
 
 ###############################################################################################
