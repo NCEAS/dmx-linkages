@@ -35,6 +35,8 @@ Fish_df <- read.csv(file=textConnection(Fish1),stringsAsFactors=FALSE)
 # units are Biomass (tons/km2) from surveys
 CapelinBiomass <- Fish_df %>%
   select(Year, Capelin)
+
+CapelinBiomass[CapelinBiomass == 0] <- NA# replace zeros with NAs
 #head(CapelinBiomass)
 #
 
