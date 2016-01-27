@@ -20,7 +20,7 @@ library(stringr)
 #############
 ###  Pacific Decadal Oscillation Index (PDO):
 URL_pdo <- "http://jisao.washington.edu/pdo/PDO.latest"
-pdo_raw <- html(URL_pdo)
+pdo_raw <- read_html(URL_pdo)
 pdo_pre <- pdo_raw %>%
                html_node("p") %>%
                html_text()

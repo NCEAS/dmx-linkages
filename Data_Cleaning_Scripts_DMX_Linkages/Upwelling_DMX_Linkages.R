@@ -21,7 +21,7 @@ library(stringr)
 
 ### Upwelling Anomalies:
 URL_upanom <- "http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upanoms.mon"
-upanom_raw <- html(URL_upanom)
+upanom_raw <- read_html(URL_upanom)
 upanom_pre <- upanom_raw %>%
               html_node("p") %>%
               html_text()
