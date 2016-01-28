@@ -10,17 +10,18 @@ library(plyr)
 library(dplyr)
 
 
+
 # call the data assembly script
 source("commPracticeDataFormat.R")
 CPD <- CoPrct
 
 # filter data for complete cases
-CPD2 <- CPD %>%
-        filter(complete.cases(.))
+#CPD2 <- CPD %>%
+#        filter(complete.cases(.))
 
-CPD3 <- CPD %>%
-        select(-SkateBiomass,-SharkAbundIPHC,-SSLnonPup_anul_mn,-WndDir_degT_Winter,-WndSp_m_s_Winter) %>%
-        filter(complete.cases(.))
+#CPD3 <- CPD %>%
+#        select(-SkateBiomass,-SharkAbundIPHC,-SSLnonPup_anul_mn,-WndDir_degT_Winter,-WndSp_m_s_Winter) %>%
+#        filter(complete.cases(.))
 
 CPD4 <- CPD %>%
         select(which(colMeans(is.na(.)) < 0.5)) %>%
@@ -29,11 +30,29 @@ CPD4 <- CPD %>%
 
 ###
 
-test <- randomForest(goaPinkCatchNum ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
-print(test)
-plot(test)
-varImpPlot(test)
-test$importance
+goaPink <- randomForest(goaPinkCatchNum ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(goaPink)
+plot(goaPink)
+varImpPlot(goaPink)
+goaPink$importance
+
+arrow <- randomForest(ArrAdult ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(arrow)
+plot(arrow)
+varImpPlot(arrow)
+arrow$importance
+
+poll_a <- randomForest(Poll_Yr3plus_TtlBmss_1000Tons ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(poll_a)
+plot(poll_a)
+varImpPlot(poll_a)
+poll_a$importance
+
+poll_j <- randomForest(Poll_Age1_recruits_millions ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(poll_j)
+plot(poll_j)
+varImpPlot(poll_j)
+poll_j$importance
 
 
 
@@ -44,7 +63,7 @@ test$importance
 RF_per_var <- function(df){
               # insert code to make it do it for every column, but not overwrite
               for(i in ncol(df)){
-                  rf <- randomForest( ~., data=df, importance=T, do.trace=1000, ntree=5000)
+                  rf <- randomForest(i ~., data=df, importance=T, do.trace=1000, ntree=5000)
                   return(rf)
               }
 }
