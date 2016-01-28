@@ -121,7 +121,7 @@ detach(CPrD1)
 
 # model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
 mod.6 <- 'plck_tons ~ Poll_Yr3plus_TtlBmss_1000Tons
-Poll_Yr3plus_TtlBmss_1000Tons ~ Poll_Age1_recruits_millions + Euphausiids + Pink_Shrimp + ArrAdult + hlbt_pounds + PCod_female_Bmss_t
+Poll_Yr3plus_TtlBmss_1000Tons ~ Poll_Age1_recruits_millions + Euphausiids + Pink_Shrimp + ArrAdult + PCod_female_Bmss_t
 Poll_Age1_recruits_millions ~ Euphausiids + MayCopepods + AnnChl + WTemp_C_AnnMn + Poll_Yr3plus_TtlBmss_1000Tons
 Euphausiids ~ AnnChl
 MayCopepods ~ AnnChl
