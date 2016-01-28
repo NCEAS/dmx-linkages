@@ -25,4 +25,4 @@ ArrFisheryGet <- GET(URL_ArrFishery)
 ArrFishery1 <- content(ArrFisheryGet, as='text')
 ArrFishery_df <- read.csv(file=textConnection(ArrFishery1),stringsAsFactors=FALSE)
 
-ArrFishery_df <- ArrFishery_df %>% rename(Year=year)
+ArrFishery_df <- ArrFishery_df %>% dplyr::rename(Year=year)
