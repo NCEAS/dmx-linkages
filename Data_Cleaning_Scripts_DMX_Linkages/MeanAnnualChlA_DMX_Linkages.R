@@ -38,4 +38,3 @@ AnnChl = Chl_df %>%
   rename(Year=year) %>%
   mutate(AnnChl = rowMeans(Chl_df[,2:4])) %>%
   select(Year, AnnChl)
-#View(AnnChl)
