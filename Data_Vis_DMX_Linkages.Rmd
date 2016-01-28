@@ -12,16 +12,29 @@ Plot 1: Heatmap of all datasets we have in hand to date
 ```{r, echo=FALSE}
 
 # load necessary packages
+library(httr)
 library(plyr)
 library(dplyr)
-library(reshape)
-library(ggplot2)
-library(scales)
+library(XML)
+library(curl)
+library(rvest)
+library(tidyr)
+library(stringr)
+
 
 # call the data assembly script
 source("commPracticeDataFormat.R")
 #head(CoPrct) ; str(CoPrct)
 
+
+```
+
+
+```{r, echo=FALSE}
+# load smore more packages that were creating conflicts with reading in the data
+library(reshape)
+library(ggplot2)
+library(scales)
 
 ```
 
