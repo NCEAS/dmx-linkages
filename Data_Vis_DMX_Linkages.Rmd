@@ -1,5 +1,5 @@
 ---
-title: "DMX_Linkages_Data_Visualizations"
+title: ""
 author: "Rachael Blake"
 date: "January 27, 2016"
 output: html_document
@@ -9,7 +9,7 @@ output: html_document
 
 Plot 1: Heatmap of all datasets we have in hand to date
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include=FALSE}
 
 # load necessary packages
 library(httr)
@@ -24,13 +24,14 @@ library(stringr)
 
 # call the data assembly script
 source("commPracticeDataFormat.R")
-#head(CoPrct) ; str(CoPrct)
+#head(CoPrct) 
+#str(CoPrct)
 
 
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include=FALSE}
 # load smore more packages that were creating conflicts with reading in the data
 library(reshape)
 library(ggplot2)
@@ -39,7 +40,7 @@ library(scales)
 ```
 
 
-```{r}
+```{r, fig.height=12, fig.width=12}
 
 # plot data presence in time for each variable
 melt_CoPr <- melt(CoPrct, id.vars="Year", variable_name="Data_Set")
