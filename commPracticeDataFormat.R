@@ -68,7 +68,7 @@ CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)  # Euphausids - May
 
 
 # Optional: Write data frame to a CSV
-write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
+#write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
 
 
 ###############################################################################################

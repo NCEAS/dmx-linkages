@@ -4,27 +4,54 @@
 ### Started by Rachael Blake    January 2016
 ###############################################
 
-# call the data assembly script
-CPD <- source("commPracticeDataFormat.R")
-
-
 # load necessary packages
 library(randomForest)
+library(plyr)
+library(dplyr)
 
-# build function to run random forests on each variable
+
+# call the data assembly script
+source("commPracticeDataFormat.R")
+CPD <- CoPrct
+
+# filter data for complete cases
+CPD2 <- CPD %>%
+        filter(complete.cases(.))
+
+CPD3 <- CPD %>%
+        select(-SkateBiomass,-SharkAbundIPHC,-SSLnonPup_anul_mn,-WndDir_degT_Winter,-WndSp_m_s_Winter) %>%
+        filter(complete.cases(.))
+
+CPD4 <- CPD %>%
+        select(which(colMeans(is.na(.)) < 0.5)) %>%
+        filter(complete.cases(.))
+
+
+###
+
+test <- randomForest(goaPinkCatchNum ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(test)
+plot(test)
+varImpPlot(test)
+test$importance
+
+
+
+
+
+
+# build function to run random forests on each variable(column)
 RF_per_var <- function(df){
               # insert code to make it do it for every column, but not overwrite
-              for("everyColumn" in df){
-                  rf <- randomForest(variable ~., data=df, importance=T, do.trace=1000, ntree=5000)
+              for(i in ncol(df)){
+                  rf <- randomForest( ~., data=df, importance=T, do.trace=1000, ntree=5000)
                   return(rf)
               }
-              }
+}
+
+
 
 #####################################################
-
-
-
-
 ### Epiphytic Chla
 rf <- randomForest(EpiChla ~., data=FS08RF, importance=T, do.trace=1000, ntree=5000)
 
