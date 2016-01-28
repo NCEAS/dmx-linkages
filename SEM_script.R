@@ -3,9 +3,10 @@
 ## created 23 Jan 2016
 ################################################################
 
+library(plyr)
 library(dplyr)
 library(lavaan)
-library(AICcmodavg)
+#library(AICcmodavg)
 
 # call the data assembly script
 source("commPracticeDataFormat.R")
@@ -39,8 +40,7 @@ CPrD2 <- CPrD1 %>%
 
 
 # standardize each variable to zero mean and unit variance
-CPrD3 <- CPrD2 %>% 
-  colwise(scale)()
+CPrD3 <- CPrD2 %>% colwise(scale)()
 
 
 #############################################
@@ -119,15 +119,15 @@ hist(log(hlbt_pounds)); hist(log(plck_tons))
 detach(CPrD1)
 
 
-# full model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
+# model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
 mod.6 <- 'plck_tons ~ Poll_Yr3plus_TtlBmss_1000Tons
 Poll_Yr3plus_TtlBmss_1000Tons ~ Poll_Age1_recruits_millions + Euphausiids + Pink_Shrimp + ArrAdult + hlbt_pounds + PCod_female_Bmss_t
-Poll_Age1_recruits_millions ~ Euphausiids + MayCopepods + AnnChl + NPGO_anul_mn + WTemp_C_AnnMn + Poll_Yr3plus_TtlBmss_1000Tons
-Euphausiids ~ AnnChl + WTemp_C_AnnMn
-MayCopepods ~ AnnChl + NPGO_anul_mn
-AnnChl ~ WTemp_C_AnnMn + NPGO_anul_mn + ENSO_anul_mn + PDO_anul_mn
+Poll_Age1_recruits_millions ~ Euphausiids + MayCopepods + AnnChl + WTemp_C_AnnMn + Poll_Yr3plus_TtlBmss_1000Tons
+Euphausiids ~ AnnChl
+MayCopepods ~ AnnChl
+AnnChl ~ WTemp_C_AnnMn
 WTemp_C_AnnMn ~ NPGO_anul_mn + ENSO_anul_mn + PDO_anul_mn'
-mod.6.fit <- sem(mod.6, data=CPrD3)
+mod.6.fit <- sem(mod.6, data=CPrD3) # model does not converge. and nobs (13) < nvar (14)
 summary(mod.6.fit, stand=T, rsq=T)
 
 
