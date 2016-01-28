@@ -4,14 +4,8 @@
 ### Started by Rachael Blake    January 2016
 ###############################################
 
-# load necessary packages
-library(randomForest)
-library(plyr)
-library(dplyr)
-
-
-
 # call the data assembly script
+
 source("commPracticeDataFormat.R")
 CPD <- CoPrct
 
@@ -68,18 +62,23 @@ hlbt_lbs$importance
 
 
 
-# build function to run random forests on each variable(column)
+# load necessary packages
+library(randomForest)
+
+# build function to run random forests on each variable
 RF_per_var <- function(df){
               # insert code to make it do it for every column, but not overwrite
-              for(i in ncol(df)){
-                  rf <- randomForest(i ~., data=df, importance=T, do.trace=1000, ntree=5000)
+              for("everyColumn" in df){
+                  rf <- randomForest(variable ~., data=df, importance=T, do.trace=1000, ntree=5000)
                   return(rf)
               }
-}
-
-
+              }
 
 #####################################################
+
+
+
+
 ### Epiphytic Chla
 rf <- randomForest(EpiChla ~., data=FS08RF, importance=T, do.trace=1000, ntree=5000)
 
