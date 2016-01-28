@@ -29,31 +29,40 @@ CPD4 <- CPD %>%
 
 
 ###
-
+# Pink Salmon
 goaPink <- randomForest(goaPinkCatchNum ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
 print(goaPink)
 plot(goaPink)
 varImpPlot(goaPink)
 goaPink$importance
 
+# Arrowtooth
 arrow <- randomForest(ArrAdult ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
 print(arrow)
 plot(arrow)
 varImpPlot(arrow)
 arrow$importance
 
+# Pollock Adults
 poll_a <- randomForest(Poll_Yr3plus_TtlBmss_1000Tons ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
 print(poll_a)
 plot(poll_a)
 varImpPlot(poll_a)
 poll_a$importance
 
+# Pollock Juvenile
 poll_j <- randomForest(Poll_Age1_recruits_millions ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
 print(poll_j)
 plot(poll_j)
 varImpPlot(poll_j)
 poll_j$importance
 
+# Halibut
+hlbt_lbs <- randomForest(hlbt_pounds ~., data=CPD4, importance=T, do.trace=1000, ntree=5000)
+print(hlbt_lbs)
+plot(hlbt_lbs)
+varImpPlot(hlbt_lbs)
+hlbt_lbs$importance
 
 
 
