@@ -20,11 +20,16 @@ library(stringr)
 #############
 
 # these data are from the NOAA EcoFOCI sampling program conducted at Line 8 (southwest Shelikof Strait)
-# NB **only a subset of the zooplankton community was counted** - targeted species were known prey items of larval pollock
-# data here are from the 333um mesh net only (153um mesh net are only available after 2002 and are not included here)
-# therefore, smaller copeopd species are excluded (eg Oithona, Acartia, which are numerically dominant at Seward Line, as well as nauplii and early copepodite stages)
+
+# units are indiv. / m^3
 # data here were collected between April 25 and June 8
 # Euphausiid and Mysid abundances were calculated using only nighttime collections (10pm to 6am)
+
+# Please note:
+# **only a subset of the zooplankton community was counted** - targeted species were known prey items of larval pollock
+# data here are from the 333um mesh net only (153um mesh net are only available after 2002 and are not included here)
+# therefore, smaller copeopd species are excluded (eg Oithona, Acartia, which are numerically dominant at Seward Line, as well as nauplii and early copepodite stages)
+
 
 URL_zoop <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uMkk3V3JaQ3k2MTQ"
 zoopGet <- GET(URL_zoop)
