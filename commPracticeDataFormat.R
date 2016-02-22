@@ -63,12 +63,13 @@ CoPrct <- merge(CoPrct,AnnChl,all.x=T)  # log Chla from satellites
 CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T) # Halibut catch data from fishery
 CoPrct <- merge(CoPrct,PollFishery_df,all.x=T) # Pollock catch data from fishery
 CoPrct <- merge(CoPrct,CapelinBiomass,all.x=T)  # Capelin biomass (from Sarah's EWE model)
-CoPrct <- merge(CoPrct,MayCopepods,all.x=T)    # Copepods - May 
-CoPrct <- merge(CoPrct,MayEuphausiids,all.x=T)  # Euphausids - May 
+CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)    # Copepod biomass - May (Seward Line)
+CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)  # Euphausid biomass - May (Seward Line)
+CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)  # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
 
 
 # Optional: Write data frame to a CSV
-write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
+#write.csv(CoPrct, file = "CoPrct.csv", row.names=FALSE)
 
 
 ###############################################################################################
