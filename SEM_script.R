@@ -421,10 +421,20 @@ summary(mod.9.fit, stand=T, rsq=T)
 # logArrTons ~~                                                         
 #   logPlckRecruts    0.344    0.157    2.201    0.028    0.344    0.771
 
+# Direct effect of Chl a on Euphausiids is not significant ... so the food web path cannot be mediating here ...?
+# (but then when I remove the food web pathway below in mod.10, NPGO direct effect on ArrowtoothAdults is not significant ...)
+
+modindices(mod.9.fit)
+# Residual covariations to consider, with modification index:
+# logArrAdult ~~       logAnnChl 5.837
+
+# # Direct links to consider, with modification index:
+# logArrAdult  ~       logAnnChl 5.837
+
 ############################################################
 
 
-# minimum model (without Euphausiid pathway:
+# minimum model (without Euphausiid pathway):
 mod.10 <- 'logArrTons ~ logArrAdult
 logArrAdult ~ NPGO
 
@@ -439,6 +449,19 @@ summary(mod.10.fit, stand=T, rsq=T)
 # Degrees of freedom                                 3
 # P-value (Chi-square)                           0.606
 
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~                                                          
+#   logArrAdult       0.828    0.086    9.675    0.000    0.828    0.863
+# logArrAdult ~                                                         
+#   NPGO             -0.370    0.258   -1.437    0.151   -0.370   -0.370
+
+# Covariances:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~~                                                         
+#   logPlckRecruts    0.344    0.157    2.201    0.028    0.344    0.771
+
+# Note that logArrAdult ~ NPGO direct effect is not significant ...
 
 ############################################################
 
