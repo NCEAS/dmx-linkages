@@ -1,8 +1,8 @@
 ---
-title: "Correlations"
+title: "Correlations among Candidate Variables"
 author: "Colette Ward"
 date: "February 22, 2016"
-output: html_document
+output: word_document
 ---
 
 # Correlations among candidate variables
