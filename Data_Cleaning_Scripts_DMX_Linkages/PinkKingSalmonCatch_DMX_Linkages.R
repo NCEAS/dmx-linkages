@@ -24,8 +24,12 @@ library(stringr)
 
 post_url <- "http://www.adfg.alaska.gov/index.cfm?adfg=CommercialByFisherySalmon.exvesselquery"
 post_body <- list(Year="2014", areas= "allareas", speciesx= "allspecies", submit= "Find%20the%20Data")
-html <- POST(post_url, body = post_body, encode = "form")
-akcommdf_2014 <- readHTMLTable(content(html))[[1]]
+response <- POST(post_url, body = post_body, encode = "form")
+## Use as = "text" here so the response stays a character string because htmlParse expects text
+the_content <- content(response, as="text") 
+the_html <- htmlParse(the_content)
+akcommdf_2014 <- readHTMLTable(the_html)[[1]]
+
 
 salmonDf<-data.frame(V1 = character(0),
                      V2 = character(0),
@@ -43,8 +47,10 @@ selectionDf=as.data.frame(Year) %>%
 acc=1
 for(i in 1:nrow(selectionDf)) {
   post_body <- list(Year=selectionDf[i,1], areas=selectionDf[i,2], speciesx='allspecies', submit= "Find%20the%20Data")
-  html <- POST(post_url, body = post_body, encode = "form")
-  akSalmonDf <- as.data.frame(readHTMLTable(content(html))[[1]])
+  response <- POST(post_url, body = post_body, encode = "form")
+  the_content <- content(response, as="text") 
+  the_html <- htmlParse(the_content)
+  akSalmonDf <- as.data.frame(readHTMLTable(the_html)[[1]])
   akSalmonDf$Year<-selectionDf[i,1]
   salmonDf=rbind(salmonDf,akSalmonDf)
   acc=acc+1
