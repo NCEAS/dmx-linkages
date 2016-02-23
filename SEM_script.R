@@ -6,7 +6,7 @@
 library(plyr)
 library(dplyr)
 library(lavaan)
-#library(AICcmodavg)
+library(AICcmodavg)
 
 # call the data assembly script
 #source("commPracticeDataFormat.R")
@@ -465,15 +465,159 @@ summary(mod.10.fit, stand=T, rsq=T)
 
 ############################################################
 
+# try adding Adult Pollock Biomass to look at pollock fishery hypothesis, 
+# and remove residual covariation between Arrowtooth harvest and Pollock recruits
+mod.11 <- 'logArrTons ~ logArrAdult + logPlckAdults
+logArrAdult ~ logEuphausiids + NPGO
+logEuphausiids ~ logAnnChl
+logAnnChl ~ NPGO
+
+'
+
+mod.11.fit <- sem(mod.11, data=CPrD3)
+summary(mod.11.fit, stand=T, rsq=T)
+# Minimum Function Test Statistic               12.817
+# Degrees of freedom                                 8
+# P-value (Chi-square)                           0.118
+
+# model fit is similar to mod.9, worse than mod.10
+# direct effect of Adult Pollock on Arrowtooth harvest is not significant (p = 0.22)
+# NB model fit is worse when residual covariation between Pollock recruits and Arrowtooth harvest is added back in
+
+modindices(mod.11.fit)
+
+############################################################
+
+
+# try adding Pollock harvest (tons)
+# Adult Pollock Biomass and Pollock Harvest (tons) are not correlated so it's OK to add both
+
+mod.12 <- 'logArrTons ~ logArrAdult + logPlckAdults + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO
+logEuphausiids ~ logAnnChl
+logAnnChl ~ NPGO
+
+'
+
+mod.12.fit <- sem(mod.12, data=CPrD3)
+summary(mod.12.fit, stand=T, rsq=T)
+# Minimum Function Test Statistic               32.744
+# Degrees of freedom                                11
+# P-value (Chi-square)                           0.001                         
+
+# Note model fit is much worse than most previous models
+# fit is just as poor when first line is logArrTons ~ logArrAdult + logPlckTons
+# However, direct effect of Pollock harvest (tons) on Arrowtooth harvest is significant (p = 0.042), although weak (0.19)
+
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~                                                          
+#   logArrAdult       1.071    0.115    9.314    0.000    1.071    0.885
+#   logPlckAdults    -0.169    0.118   -1.436    0.151   -0.169   -0.137
+#   logPlckTons       0.239    0.117    2.035    0.042    0.239    0.194
+# logArrAdult ~                                                         
+#   logEuphausiids    0.394    0.234    1.684    0.092    0.394    0.387
+#   NPGO             -0.432    0.234   -1.847    0.065   -0.432   -0.424
+# logEuphausiids ~                                                      
+#   logAnnChl         0.062    0.277    0.223    0.824    0.062    0.062
+# logAnnChl ~                                                           
+#   NPGO              0.661    0.208    3.174    0.002    0.661    0.661
+
+
+
+modindices(mod.12.fit)
+# direct links to consider, with modification index:
+# logArrAdult  ~    logPlckTons 4.602
+# logPlckTons  ~ logEuphausiids 4.011 (yet for mod.11 above, with Adult Pollock instead of Pollock Harvest, modification index for logPlckAdults  ~  logEuphausiids 0.126)
+
+
+############################################################
+
+
+# remove Adult Pollock Biomass
+# and try removing NPGO -> Chl a -> Euphausiid pathway
+mod.13 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO
+
+'
+
+mod.13.fit <- sem(mod.13, data=CPrD3)
+summary(mod.13.fit, stand=T, rsq=T)
+# Minimum Function Test Statistic               10.668
+# Degrees of freedom                                 3
+# P-value (Chi-square)                           0.014
+
+# Still not a great fit - even though nodes are all marginally significant?
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~                                                          
+#   logArrAdult       1.026    0.127    8.062    0.000    1.026    0.925
+#   logPlckTons       0.224    0.127    1.759    0.078    0.224    0.202
+# logArrAdult ~                                                         
+#   logEuphausiids    0.394    0.237    1.664    0.096    0.394    0.394
+#   NPGO             -0.432    0.237   -1.826    0.068   -0.432   -0.432
+
+
+
+modindices(mod.13.fit)
+# direct links to consider:
+# logPlckTons  ~    logArrAdult 4.788 (consider Arrowtooth predation on pollock?)
+# logPlckTons  ~     logArrTons 4.080
+# logArrAdult  ~    logPlckTons 6.731
+
+
+############################################################
+
+# Add back residual covariation between Arrowtooth harvest and Pollock Recruits
+
+mod.14 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO
+
+#Residual covaration
+logArrTons ~~ logPlckRecruits
+
+'
+
+mod.14.fit <- sem(mod.14, data=CPrD3)
+summary(mod.14.fit, stand=T, rsq=T)
+# Minimum Function Test Statistic               10.987
+# Degrees of freedom                                 7
+# P-value (Chi-square)                           0.139
+
+# much better fit now
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~                                                          
+#   logArrAdult       0.997    0.069   14.549    0.000    0.997    0.918
+#   logPlckTons       0.255    0.069    3.724    0.000    0.255    0.235
+# logArrAdult ~                                                         
+#   logEuphausiids    0.394    0.237    1.664    0.096    0.394    0.394
+#   NPGO             -0.432    0.237   -1.826    0.068   -0.432   -0.432
+
+# Covariances:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logArrTons ~~                                                         
+#   logPlckRecruts    0.355    0.153    2.327    0.020    0.355    0.845
+
+modindices(mod.14.fit)
+# direct links to consider, with modification indices:
+# logEuphausiids  ~     logArrAdult 2.454 (predation?)
+
+############################################################
+
+
 # Compare model fits:
-anova(mod.7.fit, mod.9.fit, mod.10.fit)
+anova(mod.x.fit, mod.y.fit)
 
-# Chi Square Difference Test
+# Chi Square Difference Test *** ONLY for nested models! ***
 
-#             Df    AIC    BIC   Chisq Chisq diff Df diff Pr(>Chisq)  
-#  mod.10.fit  3 122.92 126.31  1.8395                                
-#  mod.7.fit   7 197.23 204.57 12.6140     10.774       4    0.02922 *
-#  mod.9.fit   9 194.60 200.82 13.9900      1.376       2    0.50257  
+
+
+
+aictab(list(mod.7.fit, mod.9.fit, mod.10.fit, mod.11.fit, mod.12.fit, mod.13.fit, mod.14.fit), second.ord=T, sort=T)
 
 
 # now calculate and plot residuals ...
