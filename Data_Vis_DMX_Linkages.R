@@ -27,7 +27,7 @@ p <- ggplot(data=melt_CoPr, aes(x=Data_Set, y=Year)) +
             geom_tile(aes(fill = Bin_Value), colour = "white") +
             scale_fill_manual(values=c("0"="white", "1"="red"), guide=FALSE) +
             scale_y_reverse() + 
-            theme(axis.text.x = element_text(angle=70, vjust=1, hjust=1, color="black", size=15),
+            theme(axis.text.x = element_text(angle=90, vjust=0.3, hjust=1, color="black", size=15),
                   axis.text.y = element_text(color="black", size=15),
                   axis.title  = element_text(face="bold", size=20))
 p
