@@ -35,7 +35,7 @@ CPD <- CoPrct
 ```
 
 
-```{r,fig.height=12, fig.width=12}
+```{r,fig.height=6, fig.width=8}
 ###
 # Pink Salmon
 CPD_Pink <- CPD %>% 
@@ -48,11 +48,11 @@ goaPink <- randomForest(goaPinkCatchNum ~., data=CPD_Pink, importance=T, do.trac
 print(goaPink)
 #plot(goaPink)
 varImpPlot(goaPink)
-#goaPink$importance
+goaPink$importance
 
 ```
 
-```{r,fig.height=12, fig.width=12}
+```{r,fig.height=6, fig.width=8}
 
 # Arrowtooth
 CPD_Arrow <- CPD %>% 
@@ -64,12 +64,12 @@ arrow <- randomForest(ArrAdult ~., data=CPD_Arrow, importance=T, do.trace=1000, 
 print(arrow)
 #plot(arrow)
 varImpPlot(arrow)
-#arrow$importance
+arrow$importance
 
 ```
 
 
-```{r,fig.height=12, fig.width=12}
+```{r,fig.height=6, fig.width=8}
 
 # Pollock Adults
 CPD_Poll <- CPD %>% 
@@ -83,11 +83,11 @@ poll_a <- randomForest(Poll_Yr3plus_TtlBmss_1000Tons ~., data=CPD_Poll, importan
 print(poll_a)
 #plot(poll_a)
 varImpPlot(poll_a)
-#poll_a$importance
+poll_a$importance
 
 ```
 
-```{r,fig.height=12, fig.width=12}
+```{r,fig.height=6, fig.width=8}
 
 # Pollock Juvenile
 CPD_JPoll <- CPD %>%
@@ -100,11 +100,11 @@ poll_j <- randomForest(Poll_Age1_recruits_millions ~., data=CPD_JPoll, importanc
 print(poll_j)
 #plot(poll_j)
 varImpPlot(poll_j)
-#poll_j$importance
+poll_j$importance
 
 ```
 
-```{r,fig.height=12, fig.width=12}
+```{r,fig.height=6, fig.width=8}
 
 # Halibut
 CPD_Hal <- CPD %>% 
@@ -116,7 +116,7 @@ hlbt_lbs <- randomForest(hlbt_pounds ~., data=CPD_Hal, importance=T, do.trace=10
 print(hlbt_lbs)
 #plot(hlbt_lbs)
 varImpPlot(hlbt_lbs)
-#hlbt_lbs$importance
+hlbt_lbs$importance
 
 ```
 
