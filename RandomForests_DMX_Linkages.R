@@ -43,11 +43,11 @@ Imp_Var <- function(rf_obj){
 # transform some variables 
 CPD <- CoPrct %>%
        mutate(log_WTemp_C_AnnMn = log(WTemp_C_AnnMn),
-              log_AnnChl = log(AnnChl),
               log_SwdLineMayEuphausiids = log(SewardLineMayEuphausiids),
               log_SwdLineMayCopepods = log(SewardLineMayCopepods),
               log_Poll_Age1_recruits_millions = log(Poll_Age1_recruits_millions),
-              log_Pink_Shrimp = log(Pink_Shrimp)
+              log_Pink_Shrimp = log(Pink_Shrimp),
+              log_hlbt_pounds = log(hlbt_pounds)
               )
        
 
@@ -56,7 +56,7 @@ CPD <- CoPrct %>%
 # Pink Salmon
 CPD_Pink <- CPD %>% 
             select(PDO_anul_mn,NPGO_anul_mn,#WndSp_m_s_AnnMn,WndDir_degT_AnnMn,
-                   log_WTemp_C_AnnMn,log_AnnChl,log_SwdLineMayEuphausiids,
+                   log_WTemp_C_AnnMn,AnnChl,log_SwdLineMayEuphausiids,
                    log_SwdLineMayCopepods,goaPinkCatchNum,
                    PWS_WildPinkSalmon_SSB_ModelOutput,ArrAdult,
                    Poll_Yr3plus_TtlBmss_1000Tons) %>%
@@ -75,7 +75,7 @@ partialPlot(goaPink,CPD_Pink,goaPinkCatchNum)
 # Arrowtooth   ## NOTE: Capelin left out due to too few data points
 CPD_Arrow <- CPD %>% 
              select(PDO_anul_mn,NPGO_anul_mn,#WndSp_m_s_AnnMn,WndDir_degT_AnnMn,
-                    log_WTemp_C_AnnMn,log_AnnChl,log_SwdLineMayEuphausiids,
+                    log_WTemp_C_AnnMn,AnnChl,log_SwdLineMayEuphausiids,
                     log_Poll_Age1_recruits_millions, ArrAdult,arth_tons,
                     arth_real_rev,arth_vessels,arth_processors,arth_real_price) %>%
              filter(complete.cases(.))
@@ -87,19 +87,18 @@ arrow$importance
 Imp_Var(arrow) # get important variables
 # important variables below
 partialPlot(arrow,CPD_Arrow,NPGO_anul_mn)
-partialPlot(arrow,CPD_Arrow,log_WTemp_C_AnnMn)
-partialPlot(arrow,CPD_Arrow,log_AnnChl)
+partialPlot(arrow,CPD_Arrow,AnnChl)
 partialPlot(arrow,CPD_Arrow,arth_tons)
 partialPlot(arrow,CPD_Arrow,arth_real_rev)
 partialPlot(arrow,CPD_Arrow,arth_vessels)
-partialPlot(arrow,CPD_Arrow,arth_real_price)
+
 
 
 
 # Pollock Adults
 CPD_Poll <- CPD %>% 
             select(PDO_anul_mn,NPGO_anul_mn,#WndSp_m_s_AnnMn,WndDir_degT_AnnMn,
-                   log_WTemp_C_AnnMn,log_AnnChl,EKE_ann_max_mean,log_SwdLineMayEuphausiids,
+                   log_WTemp_C_AnnMn,AnnChl,EKE_ann_max_mean,log_SwdLineMayEuphausiids,
                    log_SwdLineMayCopepods,log_Pink_Shrimp,
                    log_Poll_Age1_recruits_millions,Poll_Yr3plus_TtlBmss_1000Tons,
                    ArrAdult, PCod_female_Bmss_t,hlbt_pounds,
@@ -122,11 +121,11 @@ partialPlot(poll_a,CPD_Poll,ArrAdult)
 # Pollock Juvenile
 CPD_JPoll <- CPD %>%
              select(PDO_anul_mn,NPGO_anul_mn,#WndSp_m_s_AnnMn,WndDir_degT_AnnMn,
-                    log_WTemp_C_AnnMn,log_AnnChl, EKE_ann_max_mean,log_SwdLineMayEuphausiids,
+                    log_WTemp_C_AnnMn,AnnChl, EKE_ann_max_mean,log_SwdLineMayEuphausiids,
                     log_SwdLineMayCopepods,log_Poll_Age1_recruits_millions,
                     Poll_Yr3plus_TtlBmss_1000Tons,ArrAdult) %>%
              filter(complete.cases(.))
-poll_j <- randomForest(log(Poll_Age1_recruits_millions) ~., data=CPD_JPoll, importance=T, do.trace=1000, ntree=5000)
+poll_j <- randomForest(log_Poll_Age1_recruits_millions ~., data=CPD_JPoll, importance=T, do.trace=1000, ntree=5000)
 print(poll_j)
 plot(poll_j)
 varImpPlot(poll_j)
@@ -141,23 +140,23 @@ partialPlot(poll_j,CPD_JPoll,Poll_Yr3plus_TtlBmss_1000Tons)
 # Halibut
 CPD_Hal <- CPD %>% 
            select(PDO_anul_mn,NPGO_anul_mn,#WndSp_m_s_AnnMn,WndDir_degT_AnnMn,
-                  log_WTemp_C_AnnMn,log_AnnChl,Poll_Yr3plus_TtlBmss_1000Tons, 
+                  log_WTemp_C_AnnMn,AnnChl,Poll_Yr3plus_TtlBmss_1000Tons, 
                   log_Poll_Age1_recruits_millions, TotTCrab,log_Pink_Shrimp,
-                  log(hlbt_pounds),hlbt_real_rev,hlbt_vessels,hlbt_processors) %>%
+                  log_hlbt_pounds,hlbt_real_rev,hlbt_vessels,hlbt_processors) %>%
            filter(complete.cases(.))
        
-hlbt_lbs <- randomForest(log(hlbt_pounds) ~., data=CPD_Hal, importance=T, do.trace=1000, ntree=5000)
+hlbt_lbs <- randomForest(log_hlbt_pounds ~., data=CPD_Hal, importance=T, do.trace=1000, ntree=5000)
 print(hlbt_lbs)
 plot(hlbt_lbs)
 varImpPlot(hlbt_lbs)
 hlbt_lbs$importance
 Imp_Var(hlbt_lbs) # get important variables
 # important variables below
-partialPlot(hlbt_lbs,CPD_Hal,log(AnnChl))
-partialPlot(hlbt_lbs,CPD_Hal,log(Poll_Age1_recruits_millions))
-partialPlot(hlbt_lbs,CPD_Hal,log(Pink_Shrimp))
+partialPlot(hlbt_lbs,CPD_Hal,AnnChl)
+partialPlot(hlbt_lbs,CPD_Hal,log_Poll_Age1_recruits_millions)
+partialPlot(hlbt_lbs,CPD_Hal,TotTCrab)
+partialPlot(hlbt_lbs,CPD_Hal,log_Pink_Shrimp)
 partialPlot(hlbt_lbs,CPD_Hal,hlbt_real_rev)
-
 
 
 
