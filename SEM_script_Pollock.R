@@ -64,12 +64,6 @@ names(CPrD1)
 recruits <- CPrD$Poll_Age1_recruits_millions*1000000
 spawners <- CPrD$Poll_FemSpawningBiomass_Thousands_Minus1Yr*1000
 
-# result for log(recruits/spawners) ~ raw spawners
-plot(recruits ~ spawners, pch=16, cex=2.5)
-plot(log(recruits/spawners) ~ spawners, pch=16, cex=2.5)
-regLine(lm(log(recruits/spawners) ~ spawners), col="red")
-summary(lm(log(recruits/spawners) ~ spawners)) # p-value: 0.02, R2 = 0.14
-
 # take residuals of log (R/S) ~ log(S)
 plot(log(recruits/spawners) ~ log(spawners), pch=16, cex=2.5)
 regLine(lm(log(recruits/spawners) ~ log(spawners)), col="red")
@@ -390,6 +384,8 @@ plot(CPrD4$logPlckAdults ~ CPrD4$Year, pch=16, cex=2.5, type = "b")
 plot(CPrD4$logPlckTAC~ CPrD4$Year, pch=16, cex=2.5, type = "b")
 # no trend
 # population is increasing at the recent end, but has the human system been able to catch up yet? is there a time lag here?
+
+
 
 
 # what happens if I add Halibut Harvest to Adult Pollock model as surrogate of predation?
