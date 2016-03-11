@@ -1,7 +1,9 @@
+# Communities of Practice 
+# Structural Equation Modelling Script
+# Arrowtooth Flounder case study
+# Colette Ward 23 Jan 2016
 ################################################################
-## Communities of Practice Structural Equation Modelling Script
-## Colette Ward 23 Jan 2016
-################################################################
+
 
 library(plyr)
 library(dplyr)
@@ -609,47 +611,250 @@ modindices(mod.14.fit)
 ############################################################
 
 
+# feedback from last group meeting: replace ENSO with PDO, and look at direct effect of Water Temp on ATF adult biomass
+# add these to base model from mod.11 (ie mod.13, which is the best so far, before cutting out the Euphausiid link)
+mod.15 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO + PDO + WTemp
+logEuphausiids ~ logAnnChl
+logAnnChl ~ NPGO + PDO
+
+'
+
+mod.15.fit <- sem(mod.15, data=CPrD3)
+summary(mod.15.fit, stand=T, rsq=T)
+
+# model fit is much worse
+lavaan (0.5-20) converged normally after  19 iterations
+
+Number of observations                            13
+
+Estimator                                         ML
+Minimum Function Test Statistic               38.167
+Degrees of freedom                                13
+P-value (Chi-square)                           0.000
+
+Regressions:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons ~                                                          
+  logArrAdult       1.026    0.127    8.086    0.000    1.026    0.906
+logPlckTons       0.224    0.126    1.781    0.075    0.224    0.200
+logArrAdult ~                                                         
+  logEuphausiids    0.312    0.209    1.493    0.135    0.312    0.315
+NPGO             -0.707    0.274   -2.585    0.010   -0.707   -0.714
+PDO              -0.156    0.247   -0.631    0.528   -0.156   -0.157
+WTemp            -0.420    0.239   -1.753    0.080   -0.420   -0.423
+logEuphausiids ~                                                      
+  logAnnChl         0.062    0.277    0.223    0.824    0.062    0.062
+logAnnChl ~                                                           
+  NPGO              0.563    0.241    2.340    0.019    0.563    0.563
+PDO              -0.184    0.241   -0.763    0.445   -0.184   -0.184
+
+Variances:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons        0.189    0.074    2.550    0.011    0.189    0.163
+logArrAdult       0.524    0.205    2.550    0.011    0.524    0.578
+logEuphausiids    0.920    0.361    2.550    0.011    0.920    0.996
+logAnnChl         0.498    0.195    2.550    0.011    0.498    0.539
+
+R-Square:
+  Estimate
+logArrTons        0.837
+logArrAdult       0.422
+logEuphausiids    0.004
+logAnnChl         0.461
+
+
+
+############################################################
+
+
+# no significant effect of PDO on logArrAdult  nor logAnnChl, therefore remove it:
+
+mod.16 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO + WTemp
+logEuphausiids ~ logAnnChl
+logAnnChl ~ NPGO
+
+'
+
+mod.16.fit <- sem(mod.16, data=CPrD3)
+summary(mod.16.fit, stand=T, rsq=T)
+# model is not significant
+
+lavaan (0.5-20) converged normally after  19 iterations
+
+Number of observations                            13
+
+Estimator                                         ML
+Minimum Function Test Statistic               26.710
+Degrees of freedom                                11
+P-value (Chi-square)                           0.005
+
+
+Regressions:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons ~                                                          
+  logArrAdult       1.026    0.126    8.127    0.000    1.026    0.908
+logPlckTons       0.224    0.126    1.781    0.075    0.224    0.199
+logArrAdult ~                                                         
+  logEuphausiids    0.331    0.212    1.559    0.119    0.331    0.332
+NPGO             -0.625    0.243   -2.571    0.010   -0.625   -0.628
+WTemp            -0.415    0.243   -1.707    0.088   -0.415   -0.417
+logEuphausiids ~                                                      
+  logAnnChl         0.062    0.277    0.223    0.824    0.062    0.062
+logAnnChl ~                                                           
+  NPGO              0.661    0.208    3.174    0.002    0.661    0.661
+
+Variances:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons        0.189    0.074    2.550    0.011    0.189    0.161
+logArrAdult       0.539    0.212    2.550    0.011    0.539    0.589
+logEuphausiids    0.920    0.361    2.550    0.011    0.920    0.996
+logAnnChl         0.520    0.204    2.550    0.011    0.520    0.563
+
+R-Square:
+  Estimate
+logArrTons        0.839
+logArrAdult       0.411
+logEuphausiids    0.004
+logAnnChl         0.437
+
+
+modindices(mod.16.fit)
+# covariation:
+logArrAdult ~~ logEuphausiids 5.972
+logArrAdult ~~      logAnnChl 5.972
+
+# direct links:
+logArrAdult  ~      logAnnChl 5.972
+# suggests link should be direct, not via covariation???
+logEuphausiids  ~           NPGO 0.316
+logEuphausiids ~~      logAnnChl 0.316
+# note there is no suggestion of a direct link between NPGO and Euphausiids (which is the pathway from NPGO to Arrowtooth adults)
+
+############################################################
+
+
+# remove NPGO -> Chl a -> Euphausiid pathway because Chl a -> Euphausiids is not significant
+# (very similar to mod.13, but with Water Temp addition)
+
+mod.17 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO + WTemp
+
+'
+
+mod.17.fit <- sem(mod.17, data=CPrD3)
+summary(mod.17.fit, stand=T, rsq=T)
+# model is still not significant
+
+lavaan (0.5-20) converged normally after  20 iterations
+
+Number of observations                            13
+
+Estimator                                         ML
+Minimum Function Test Statistic                9.961
+Degrees of freedom                                 4
+P-value (Chi-square)                           0.041
+
+
+Regressions:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons ~                                                          
+  logArrAdult       1.026    0.130    7.908    0.000    1.026    0.941
+logPlckTons       0.224    0.130    1.726    0.084    0.224    0.205
+logArrAdult ~                                                         
+  logEuphausiids    0.331    0.218    1.518    0.129    0.331    0.331
+NPGO             -0.625    0.243   -2.569    0.010   -0.625   -0.625
+WTemp            -0.415    0.247   -1.682    0.093   -0.415   -0.415
+
+Variances:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons        0.189    0.074    2.550    0.011    0.189    0.172
+logArrAdult       0.539    0.212    2.550    0.011    0.539    0.584
+
+R-Square:
+  Estimate
+logArrTons        0.828
+logArrAdult       0.416
+
+
+############################################################
+
+
+# add back residual covariation between Pollock Recruits and Arrowtooth Adult Biomass
+
+mod.18 <- 'logArrTons ~ logArrAdult + logPlckTons
+logArrAdult ~ logEuphausiids + NPGO + WTemp
+
+#Residual covaration
+logArrTons ~~ logPlckRecruits
+
+'
+
+mod.18.fit <- sem(mod.18, data=CPrD3)
+summary(mod.18.fit, stand=T, rsq=T)
+
+# Model is now significant
+lavaan (0.5-20) converged normally after  25 iterations
+
+Number of observations                            13
+
+Estimator                                         ML
+Minimum Function Test Statistic               10.686
+Degrees of freedom                                 9
+P-value (Chi-square)                           0.298
+
+Regressions:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons ~                                                          
+  logArrAdult       0.997    0.070   14.273    0.000    0.997    0.935
+logPlckTons       0.255    0.070    3.653    0.000    0.255    0.239
+logArrAdult ~                                                         
+  logEuphausiids    0.331    0.218    1.518    0.129    0.331    0.331
+NPGO             -0.625    0.243   -2.569    0.010   -0.625   -0.625
+WTemp            -0.415    0.247   -1.682    0.093   -0.415   -0.415
+
+Covariances:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons ~~                                                         
+  logPlckRecruts    0.355    0.153    2.327    0.020    0.355    0.845
+
+Variances:
+  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+logArrTons        0.191    0.075    2.550    0.011    0.191    0.183
+logArrAdult       0.539    0.212    2.550    0.011    0.539    0.584
+logPlckRecruts    0.923    0.362    2.550    0.011    0.923    1.000
+
+R-Square:
+  Estimate
+logArrTons        0.817
+logArrAdult       0.416
+
+
+
+
+
+# Chi Square Difference Test *** ONLY for nested models! *** (the following are nested)
 # Compare model fits:
-anova(mod.x.fit, mod.y.fit)
 
-# Chi Square Difference Test *** ONLY for nested models! ***
+anova(mod.16.fit, mod.17.fit, mod.18.fit)
+Chi Square Difference Test
 
+Df    AIC    BIC   Chisq Chisq diff Df diff Pr(>Chisq)    
+mod.17.fit  4 190.89 194.84  9.9609                                  
+mod.18.fit  9 214.65 219.73 10.6863     0.7254       5  0.9815430    
+mod.16.fit 11 232.51 238.72 26.7103    16.0239       2  0.0003315 ***
+  ---
+  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-
-
-aictab(list(mod.7.fit, mod.9.fit, mod.10.fit, mod.11.fit, mod.12.fit, mod.13.fit, mod.14.fit), second.ord=T, sort=T)
-
-
-# now calculate and plot residuals ...
-
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
-
-# 2. Pollock model 
-# see slide x at: https://docs.google.com/a/noaa.gov/presentation/d/1GPMfcLRIXkg1ZEndSmMcdMFaa3IkU6Lbbs7QabwFewU/edit?usp=sharing
-
-# inspect variables
-attach(CPrD1)
-par(mfrow=c(3,5));
-hist(ENSO_anul_mn); hist(NPGO_anul_mn); hist(PDO_anul_mn); 
-hist(WTemp_C_AnnMn); hist(AnnChl); hist(log(Euphausiids)); 
-hist(log(MayCopepods)); hist(log(Pink_Shrimp)); hist(log(Poll_Age1_recruits_millions)); 
-hist(log(Poll_Yr3plus_TtlBmss_1000Tons)); hist(log(ArrAdult)); hist(log(PCod_female_Bmss_t)); 
-hist(log(hlbt_pounds)); hist(log(plck_tons))
-detach(CPrD1)
-
-
-# model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
-mod.6 <- 'plck_tons ~ Poll_Yr3plus_TtlBmss_1000Tons
-Poll_Yr3plus_TtlBmss_1000Tons ~ Poll_Age1_recruits_millions + Euphausiids + Pink_Shrimp + ArrAdult + PCod_female_Bmss_t
-Poll_Age1_recruits_millions ~ Euphausiids + Copepods + AnnChl + WTemp_C_AnnMn + Poll_Yr3plus_TtlBmss_1000Tons
-Euphausiids ~ AnnChl
-Copepods ~ AnnChl
-AnnChl ~ WTemp_C_AnnMn
-WTemp_C_AnnMn ~ NPGO_anul_mn + ENSO_anul_mn + PDO_anul_mn'
-mod.6.fit <- sem(mod.6, data=CPrD3) # model does not converge. and nobs (13) < nvar (14)
-summary(mod.6.fit, stand=T, rsq=T)
-
-
+Warning message:
+  In lavTestLRT(object = <S4 object of class "lavaan">, SB.classic = TRUE,  :
+                  lavaan WARNING: some models are based on a different set of observed variables
+                
+                
+                aictab(list(mod.7.fit, mod.9.fit, mod.10.fit, mod.11.fit, mod.12.fit, mod.13.fit, mod.14.fit), second.ord=T, sort=T)
+                
+                
+                # now calculate and plot residuals ...
+                
+                
