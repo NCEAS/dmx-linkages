@@ -2,10 +2,10 @@
 title: "Correlations among Candidate Variables"
 author: "Colette Ward"
 date: "February 22, 2016"
-output: word_document
+output: pdf_document
 ---
 
-# Correlations among candidate variables
+
 
 ```{r, echo=FALSE, include=FALSE}
 # load necessary packages
@@ -55,9 +55,9 @@ CPrD2 <- CPrD1 %>%
          logAnnChl = AnnChl, PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, SharkAbund = SharkAbundIPHC, 
          PlckPrice = plck_real_price_SAFE) %>%
   select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp, -Poll_Age1_recruits_millions,
-         -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons, -plck_vessels,
-         -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
-         -SSLnonPup_anul_mn)
+         -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons,
+         -plck_vessels, -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors,
+         -arth_real_price, -Capelin, -SSLnonPup_anul_mn)
 names(CPrD2)
 ```
 
@@ -89,3 +89,16 @@ Correlations among Halibut harvest variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
 pairs.panels(CPrD2[,c(24:26,45)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
+
+
+Correlations among Pink Salmon harvest variables
+```{r, echo=FALSE, fig.height=12, fig.width=12}
+pairs.panels(CPrD2[,c(8,9,15,16,19,25,26,36,48,49)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+```
+
+                   
+                   
+                   
+                   
+                   
+                   
