@@ -23,8 +23,13 @@ library(stringr)
 
 # population biomass data are from Table 2 of the Stock Assessment chapter.
 # we will use Median Exploitable Biomass, units are millions of lbs. (NB Median Spawning Biomass is also available):
-# load tables from our repository:
-HlbtPop_df <- read.csv("Halibut_2015SA_Table2.csv", header=T)
+URL_Hlbt <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uMDl0MWM1UFdnVlk"
+HlbtGet <- GET(URL_Hlbt)
+Hlbt1 <- content(HlbtGet, as='text')
+Hlbt_df <- read.csv(file=textConnection(Hlbt1),stringsAsFactors=FALSE)
+# or load data from local source:
+#HlbtPop_df <- read.csv("Halibut_2015SA_Table2.csv", header=T)
+
 HlbtPop_df1 <- HlbtPop_df %>%
   mutate(HlbtExploitable_RndWt_Mlbs = ExploitableBiomass/0.75) %>% # reported weights are 75% of round weight (ie head & guts removed); this line scales our data to 100% round weight
   mutate(HlbtExploitable_RndWt_lbs = HlbtExploitable_RndWt_Mlbs*1000000) %>% # this line scales our data to millions of lbs
@@ -35,7 +40,12 @@ HlbtPop_df1 <- HlbtPop_df %>%
 
 
 # Use Setline survey weight per unit effort to apportion population biomass (> 32 inches) by geographic region (load from our repository):
-HlbtApp_df <- read.csv("Halibut_2015Apportionment.csv", header=T)
+URL_HlbtApp <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uZFVsNHIyX3JuRlE"
+HlbtAppGet <- GET(URL_HlbtApp)
+HlbtApp1 <- content(HlbtAppGet, as='text')
+HlbtApp_df <- read.csv(file=textConnection(HlbtApp1),stringsAsFactors=FALSE)
+#HlbtApp_df <- read.csv("Halibut_2015Apportionment.csv", header=T)
+
 HlbtApp_df1 <- HlbtApp_df %>%
   mutate(GoA_App = X3A + X3B + X2C) %>% # we want areas 3A, 3B, and possibly 2C (Southeast AK)?
   transmute(Year, GoA_App = GoA_App/100)
