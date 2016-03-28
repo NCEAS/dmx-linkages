@@ -23,7 +23,7 @@ library(stringr)
 
 # units are indiv. / m^3
 # data here were collected between April 25 and June 8
-# Euphausiid and Mysid abundances were calculated using only nighttime collections (10pm to 6am)
+# pursuant to discussion with Janet Duffy-Anderson, Euphausiid and Mysid abundances were calculated using day and night collections (because nets sampled the entire water column beginning 10m above bottom)
 
 # Please note:
 # **only a subset of the zooplankton community was counted** - targeted species were known prey items of larval pollock
