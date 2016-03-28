@@ -2,7 +2,7 @@
 title: "Correlations among Candidate Variables"
 author: "Colette Ward"
 date: "February 22, 2016"
-output: pdf_document
+output: html_document
 ---
 
 
@@ -31,40 +31,46 @@ CPrD1 <- CPrD %>%
 
 # log-transform and rename some variables:
 CPrD2 <- CPrD1 %>%
-  mutate(logEuphausiids = log(SewardLineMayEuphausiids)) %>%
-  mutate(logCopepods = log(SewardLineMayCopepods)) %>%
-  mutate(logPinkShrimp = log(Pink_Shrimp)) %>%
-  mutate(logCapelin = log(Capelin)) %>%
-  mutate(logStellerAdult = log(SSLnonPup_anul_mn)) %>%
-  mutate(logPlckRecruits = log(Poll_Age1_recruits_millions)) %>%
-  mutate(logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons)) %>%
-  mutate(logArrAdult = log(ArrAdult)) %>%
-  mutate(logPCodFem = log(PCod_female_Bmss_t)) %>%
-  mutate(logPCodRecruits = log(PCod_Age1_millions)) %>%
-  mutate(logPlckTons = log(plck_tons)) %>%
-  mutate(logPlckVessels = log(plck_vessels)) %>%
-  mutate(logHlbtPounds = log(hlbt_pounds)) %>%
-  mutate(logArrTons = log(arth_tons)) %>%
-  mutate(logArrRev = log(arth_real_rev)) %>%
-  mutate(logArrVessels = log(arth_vessels)) %>%
-  mutate(logArrProcess = log(arth_processors)) %>%
-  mutate(logArrPrice = log(arth_real_price)) %>%
-  rename(SLPress = SeaLevelPressure_mean_hPa, WindDirAn = WndDir_degT_AnnMn, WindSpAn = WndSp_m_s_AnnMn, 
-         WindDirWin = WndDir_degT_Winter, WindSpWin = WndSp_m_s_Winter, ENSO = ENSO_anul_mn, NPGO = NPGO_anul_mn,
-         PDO = PDO_anul_mn, UpwellAnom = UpWelAnom_anul_mn, Ekman = EKE_ann_max_mean, WTemp = WTemp_C_AnnMn, 
-         logAnnChl = AnnChl, PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, SharkAbund = SharkAbundIPHC, 
-         PlckPrice = plck_real_price_SAFE) %>%
-  select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp, -Poll_Age1_recruits_millions,
-         -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons,
-         -plck_vessels, -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors,
-         -arth_real_price, -Capelin, -SSLnonPup_anul_mn)
+         mutate(logEuphausiids = log(SewardLineMayEuphausiids),
+                logCopepods = log(SewardLineMayCopepods),
+                logPinkShrimp = log(Pink_Shrimp),
+                logCapelin = log(Capelin),
+                logStellerAdult = log(SSLnonPup_anul_mn),
+                logPlckRecruits = log(Poll_Age1_recruits_millions),
+                logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons),
+                logArrAdult = log(ArrAdult),
+                logPCodFem = log(PCod_female_Bmss_t),
+                logPCodRecruits = log(PCod_Age1_millions),
+                logPlckTons = log(plck_tons),
+                logPlckVessels = log(plck_vessels),
+                logHlbtPounds = log(hlbt_pounds),
+                logArrTons = log(arth_tons),
+                logArrRev = log(arth_real_rev),
+                logArrVessels = log(arth_vessels),
+                logArrProcess = log(arth_processors),
+                logArrPrice = log(arth_real_price)
+                ) %>%
+         rename(SLPress = SeaLevelPressure_mean_hPa, WindDirAn = WndDir_degT_AnnMn,
+                WindSpAn = WndSp_m_s_AnnMn, WindDirWin = WndDir_degT_Winter,
+                WindSpWin = WndSp_m_s_Winter, ENSO = ENSO_anul_mn, 
+                NPGO = NPGO_anul_mn, PDO = PDO_anul_mn, UpwellAnom = UpWelAnom_anul_mn,
+                Ekman = EKE_ann_max_mean, WTemp = WTemp_C_AnnMn, logAnnChl = AnnChl,
+                PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, 
+                SharkAbund = SharkAbundIPHC, PlckPrice = plck_real_price_SAFE) %>%
+         select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp,
+                -Poll_Age1_recruits_millions,-Poll_Yr3plus_TtlBmss_1000Tons, 
+                -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons,
+                -plck_vessels, -hlbt_pounds, -arth_tons, -arth_real_rev, 
+                -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
+                -SSLnonPup_anul_mn)
+
 names(CPrD2)
 ```
 
 
 Correlations among Physical variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
-pairs.panels(CPrD2[,c(2:11,13,23)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrD2[,c(2:11,13,24)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
 
 
@@ -75,19 +81,19 @@ pairs.panels(CPrD2[,c(12,14,21:23,33:42)],smooth=F,density=T,ellipses=F,lm=T,dig
 
 Correlations among Arrwotooth harvest variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
-pairs.panels(CPrD2[,c(40,46:50)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrD2[,c(7:11,24,33,40,42,46,48:52)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
 
 
 Correlations among Pollock harvest variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
-pairs.panels(CPrD2[,c(27:29,39,43:44)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrD2[,c(8:9,13,24,28:31,33,40:43,45:47)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
 
 
 Correlations among Halibut harvest variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
-pairs.panels(CPrD2[,c(24:26,45)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrD2[,c(7:10,12,24:27,45,47)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
 
 
@@ -96,7 +102,7 @@ Correlations among Pink Salmon harvest variables
 pairs.panels(CPrD2[,c(8,9,15,16,19,25,26,36,48,49)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
 
-                   
+Correlations among                    
                    
                    
                    
