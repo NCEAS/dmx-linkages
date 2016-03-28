@@ -10,24 +10,15 @@ output: pdf_document
 ```{r, echo=FALSE, include=FALSE}
 
 # load necessary packages
-library(randomForest)
-library(plyr)
-library(dplyr)
+library(randomForest) ; library(plyr) ; library(dplyr)
 
 
 
 # call the data assembly script
 source("commPracticeDataFormat.R")
-CPD <- CoPrct
+#head(CoPrct)
 
 # filter data for complete cases
-#CPD2 <- CPD %>%
-#        filter(complete.cases(.))
-
-#CPD3 <- CPD %>%
-#        select(-SkateBiomass,-SharkAbundIPHC,-SSLnonPup_anul_mn,-WndDir_degT_Winter,-WndSp_m_s_Winter) %>%
-#        filter(complete.cases(.))
-
 #CPD4 <- CPD %>%
 #        select(which(colMeans(is.na(.)) < 0.5)) %>%
 #        filter(complete.cases(.))
@@ -35,7 +26,39 @@ CPD <- CoPrct
 ```
 
 
-```{r,fig.height=6, fig.width=8}
+```{r, echo=FALSE}
+# Some data transformations
+
+CPD <- CoPrct %>%
+       mutate(log_WTemp_C_AnnMn = log(WTemp_C_AnnMn),
+              log_SwdLineMayEuphausiids = log(SewardLineMayEuphausiids),
+              log_SwdLineMayCopepods = log(SewardLineMayCopepods),
+              log_Poll_Age1_recruits_millions = log(Poll_Age1_recruits_millions),
+              log_Pink_Shrimp = log(Pink_Shrimp),
+              log_hlbt_pounds = log(hlbt_pounds)
+              )
+
+```
+
+
+```{r, echo=FALSE}
+# Define some functions
+
+# Important variables are greater than the absolute value of the most negative
+# importance value.
+Imp_Var <- function(rf_obj){
+           a <- data.frame(rf_obj$importance)  
+           b <- min(a[,1])  # smallest value
+           c <- abs(b)  # absolute value of smallest value
+           d <- a$X.IncMSE[a$X.IncMSE>c]  # numbers great than absolute value of smallest value
+           return(d)
+           }
+
+
+```
+
+
+```{r, fig.height=6, fig.width=8}
 ###
 # Pink Salmon
 CPD_Pink <- CPD %>% 
@@ -44,7 +67,8 @@ CPD_Pink <- CPD %>%
                    goaPinkCatchNum,PWS_WildPinkSalmon_SSB_ModelOutput,ArrAdult,
                    Poll_Yr3plus_TtlBmss_1000Tons) %>%
             filter(complete.cases(.))
-goaPink <- randomForest(goaPinkCatchNum ~., data=CPD_Pink, importance=T, do.trace=1000, ntree=5000)
+goaPink <- randomForest(goaPinkCatchNum ~., data=CPD_Pink, importance=T, 
+                        do.trace=1000, ntree=5000)
 print(goaPink)
 #plot(goaPink)
 varImpPlot(goaPink)

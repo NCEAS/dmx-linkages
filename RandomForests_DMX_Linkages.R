@@ -11,18 +11,18 @@ library(randomForest);library(plyr);library(dplyr)
 source("commPracticeDataFormat.R")
 
 
-####
+#############
 # FUNCTION to run randomForest analysis and print outputs and plots
-####
+#############
 # DOESN'T WORK YET!!!
-RForestRun <- function(subset_df, resp_column, part_dep_col){
-              a <- randomForest(resp_column ~., data=subset_df, importance=T, do.trace=1000, ntree=5000)
+RForestRun <- function(subset_df, resp_column){
+              a <- randomForest(resp_column ~., data=subset_df, importance=T, 
+                                do.trace=1000, ntree=5000)
               b <- print(a)   
               c <- plot(a)
               d <- varImpPlot(a)
               e <- a$importance
-              f <- partialPlot(a, subset_df, part_dep_col)
-              rflist <- c(a,b,c,d,e,f)
+              rflist <- c(a,b,c,d,e)
               return(rflist)
               }
 
@@ -38,8 +38,9 @@ Imp_Var <- function(rf_obj){
            return(d)
            }
 
-####
-####
+#############
+#############
+
 # transform some variables 
 CPD <- CoPrct %>%
        mutate(log_WTemp_C_AnnMn = log(WTemp_C_AnnMn),
@@ -50,7 +51,7 @@ CPD <- CoPrct %>%
               log_hlbt_pounds = log(hlbt_pounds)
               )
        
-
+############
 
 ###
 # Pink Salmon
