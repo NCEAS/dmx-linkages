@@ -18,7 +18,7 @@ library(psych)
 #CPrD <- CoPrct
 #head(CPrD) 
 
-# or load the data from local source
+# or load the data from our repository
 CPrD <- read.csv("CoPrct.csv", header=T)
 head(CPrD)
 
@@ -34,11 +34,11 @@ CPrD2 <- CPrD1 %>%
          mutate(logEuphausiids = log(SewardLineMayEuphausiids),
                 logCopepods = log(SewardLineMayCopepods),
                 logPinkShrimp = log(Pink_Shrimp),
-                logCapelin = log(Capelin),
                 logStellerAdult = log(SSLnonPup_anul_mn),
                 logPlckRecruits = log(Poll_Age1_recruits_millions),
                 logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons),
                 logArrAdult = log(ArrAdult),
+                logHlbt = log(HlbtBiomass_df$Hlbt_GoAExploitable_lbs),
                 logPCodFem = log(PCod_female_Bmss_t),
                 logPCodRecruits = log(PCod_Age1_millions),
                 logPlckTons = log(plck_tons),
@@ -59,9 +59,9 @@ CPrD2 <- CPrD1 %>%
                 SharkAbund = SharkAbundIPHC, PlckPrice = plck_real_price_SAFE) %>%
          select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp,
                 -Poll_Age1_recruits_millions,-Poll_Yr3plus_TtlBmss_1000Tons, 
-                -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons,
-                -plck_vessels, -hlbt_pounds, -arth_tons, -arth_real_rev, 
-                -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
+                -ArrAdult, -HlbtBiomass_df$Hlbt_GoAExploitable_lbs, -PCod_female_Bmss_t,
+                -PCod_Age1_millions, -plck_tons, -plck_vessels, -hlbt_pounds, 
+                -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors, -arth_real_price, 
                 -SSLnonPup_anul_mn)
 
 names(CPrD2)
@@ -101,8 +101,7 @@ Correlations among Pink Salmon harvest variables
 ```{r, echo=FALSE, fig.height=12, fig.width=12}
 pairs.panels(CPrD2[,c(8,9,15,16,19,25,26,36,48,49)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 ```
-
-Correlations among                    
+                
                    
                    
                    
