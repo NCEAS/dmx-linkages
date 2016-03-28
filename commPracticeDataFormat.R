@@ -38,35 +38,35 @@ CoPrct <- data.frame('Year'=c(1975:2015))
 
 
 # Merge all data frames into one large data frame
-CoPrct <- merge(CoPrct,NPI,all.x=T) # North Pacific Index of sea level pressure
-CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)  # Annual mean wind - Central GOA
-CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)  # Winter mean wind - Central GOA
-CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)   # ENSO annual index
-CoPrct <- merge(CoPrct,npgo_annual,all.x=T)  # North Pacific Gyre Oscillation
-CoPrct <- merge(CoPrct,pdo_annual,all.x=T)   # Pacific Decadal Oscillation
-CoPrct <- merge(CoPrct,upanom,all.x=T)    # Pacific Upwelling Anomalies
-CoPrct <- merge(CoPrct,PC_df,all.x=T)    # Pacific Cod Stock Assessment
-CoPrct <- merge(CoPrct,EKE,all.x=T)    # Eddy Kinetic Energy - Central GOA
-CoPrct <- merge(CoPrct,TCrab,all.x=T)    # Tanner Crab Abundance 
-CoPrct <- merge(CoPrct,SST,all.x=T)   # Water Temperatures from Seward Line CTD
-CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Pollock Adults
-CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Pollock Recruits (age-1)
+CoPrct <- merge(CoPrct,NPI,all.x=T)                  # North Pacific Index of sea level pressure
+CoPrct <- merge(CoPrct,Wind_Ann,all.x=T)             # Annual mean wind - Central GOA
+CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)          # Winter mean wind - Central GOA
+CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)          # ENSO annual index
+CoPrct <- merge(CoPrct,npgo_annual,all.x=T)          # North Pacific Gyre Oscillation
+CoPrct <- merge(CoPrct,pdo_annual,all.x=T)           # Pacific Decadal Oscillation
+CoPrct <- merge(CoPrct,upanom,all.x=T)               # Pacific Upwelling Anomalies
+CoPrct <- merge(CoPrct,PC_df,all.x=T)                # Pacific Cod Stock Assessment
+CoPrct <- merge(CoPrct,EKE,all.x=T)                  # Eddy Kinetic Energy - Central GOA
+CoPrct <- merge(CoPrct,TCrab,all.x=T)                # Tanner Crab Abundance 
+CoPrct <- merge(CoPrct,SST,all.x=T)                  # Water Temperatures from Seward Line CTD
+CoPrct <- merge(CoPrct, Poll_Adult,all.x=T)          # Pollock Adults
+CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T)            # Pollock Recruits (age-1)
 CoPrct <- merge(CoPrct, Poll_FemaleSpawning,all.x=T) # Pollock Female Spawning Biomass
-CoPrct <- merge(CoPrct,Arr_df,all.x=T)   # Arrowtooth adult biomass 
-CoPrct <- merge(CoPrct,ArrFishery_df,all.x=T)   # Arrowtooth fishery data
-CoPrct <- merge(CoPrct,WPinks,all.x=T) # PWS pink salmon SSB
-CoPrct <- merge(CoPrct,pinkDf,all.x=T)  # Pink salmon catch data
-CoPrct <- merge(CoPrct,kingDf,all.x=T)  # King salmon catch data
-CoPrct <- merge(CoPrct,Shr_df,all.x=T)   # Pink shrimp 
-CoPrct <- merge(CoPrct,ShSk_df,all.x=T)  # Sharks and Skates
-CoPrct <- merge(CoPrct,SSL,all.x=T)    # Stellar Sea Lions
-CoPrct <- merge(CoPrct,AnnChl,all.x=T)  # log Chla from satellites
-CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T) # Halibut catch data from fishery
-CoPrct <- merge(CoPrct,PollFishery_df,all.x=T) # Pollock catch data from fishery
-CoPrct <- merge(CoPrct,PollTAC_df,all.x=T) # Pollock quota (TAC)
-CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)    # Copepod biomass - May (Seward Line)
+CoPrct <- merge(CoPrct,Arr_df,all.x=T)               # Arrowtooth adult biomass 
+CoPrct <- merge(CoPrct,ArrFishery_df,all.x=T)        # Arrowtooth fishery data
+CoPrct <- merge(CoPrct,WPinks,all.x=T)               # PWS pink salmon SSB
+CoPrct <- merge(CoPrct,pinkDf,all.x=T)               # Pink salmon catch data
+CoPrct <- merge(CoPrct,kingDf,all.x=T)               # King salmon catch data
+CoPrct <- merge(CoPrct,Shr_df,all.x=T)               # Pink shrimp 
+CoPrct <- merge(CoPrct,ShSk_df,all.x=T)              # Sharks and Skates
+CoPrct <- merge(CoPrct,SSL,all.x=T)                  # Stellar Sea Lions
+CoPrct <- merge(CoPrct,AnnChl,all.x=T)               # log Chla from satellites
+CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T)       # Halibut catch data from fishery
+CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)       # Pollock catch data from fishery
+CoPrct <- merge(CoPrct,PollTAC_df,all.x=T)           # Pollock quota (TAC)
+CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)     # Copepod biomass - May (Seward Line)
 CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)  # Euphausid biomass - May (Seward Line)
-CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)  # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
+CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)                 # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
 
 
 # Optional: Write data frame to a CSV
