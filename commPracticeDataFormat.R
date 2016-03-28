@@ -53,6 +53,7 @@ CoPrct <- merge(CoPrct, Poll_Adult,all.x=T) # Pollock Adults
 CoPrct <- merge(CoPrct, Poll_Yr1,all.x=T) # Pollock Recruits (age-1)
 CoPrct <- merge(CoPrct, Poll_FemaleSpawning,all.x=T) # Pollock Female Spawning Biomass
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)   # Arrowtooth adult biomass 
+CoPrct <- merge(CoPrct,HlbtBiomass_df,all.x=T)  # Halibut exploitable biomass (lbs)
 CoPrct <- merge(CoPrct,ArrFishery_df,all.x=T)   # Arrowtooth fishery data
 CoPrct <- merge(CoPrct,WPinks,all.x=T) # PWS pink salmon SSB
 CoPrct <- merge(CoPrct,pinkDf,all.x=T)  # Pink salmon catch data
