@@ -2,7 +2,7 @@
 title: ''
 author: "Rachael Blake"
 date: "January 27, 2016"
-output: pdf_document
+output: html_document
 ---
 
 # Data Visualizations for DMX Linkages
