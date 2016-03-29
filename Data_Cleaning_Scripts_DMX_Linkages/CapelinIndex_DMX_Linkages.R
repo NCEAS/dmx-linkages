@@ -27,4 +27,3 @@ Cap1 <- content(CapGet, as='text')
 Cap_df1 <- read.csv(file=textConnection(Cap1),stringsAsFactors=FALSE)
 
 Cap_df <- Cap_df1 %>% rename(CapelinIndex = CapeDAFIndex)
-View(Cap_df)
