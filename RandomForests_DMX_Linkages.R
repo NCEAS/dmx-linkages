@@ -145,7 +145,6 @@ CPD_Hal <- CPD %>%
                   log_Poll_Age1_recruits_millions, TotTCrab,log_Pink_Shrimp,
                   log_hlbt_pounds,hlbt_real_rev,hlbt_vessels,hlbt_processors) %>%
            filter(complete.cases(.))
-       
 hlbt_lbs <- randomForest(log_hlbt_pounds ~., data=CPD_Hal, importance=T, do.trace=1000, ntree=5000)
 print(hlbt_lbs)
 plot(hlbt_lbs)
