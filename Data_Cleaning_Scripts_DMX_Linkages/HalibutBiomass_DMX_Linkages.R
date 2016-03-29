@@ -21,16 +21,16 @@ library(stringr)
 # Halibut biomass estimates
 # from 2015 IPHC RARA  (URL here)
 
-# population biomass data are from Table 2 of the Stock Assessment chapter.
+# population biomass data are from Table 2 of the Stock Assessment chapter (2015 IPHC RARA Halibut stock assessment).
 # we will use Median Exploitable Biomass, units are millions of lbs. (NB Median Spawning Biomass is also available):
 URL_Hlbt <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uMDl0MWM1UFdnVlk"
 HlbtGet <- GET(URL_Hlbt)
 Hlbt1 <- content(HlbtGet, as='text')
 Hlbt_df <- read.csv(file=textConnection(Hlbt1),stringsAsFactors=FALSE)
 # or load data from local source:
-#HlbtPop_df <- read.csv("Halibut_2015SA_Table2.csv", header=T)
+#Hlbt_df <- read.csv("Halibut_2015SA_Table2.csv", header=T)
 
-HlbtPop_df1 <- HlbtPop_df %>%
+HlbtPop_df1 <- Hlbt_df %>%
   mutate(HlbtExploitable_RndWt_Mlbs = ExploitableBiomass/0.75) %>% # reported weights are 75% of round weight (ie head & guts removed); this line scales our data to 100% round weight
   mutate(HlbtExploitable_RndWt_lbs = HlbtExploitable_RndWt_Mlbs*1000000) %>% # this line scales our data to millions of lbs
   select(Year, HlbtExploitable_RndWt_lbs)
@@ -39,11 +39,13 @@ HlbtPop_df1 <- HlbtPop_df %>%
 
 
 
-# Use Setline survey weight per unit effort to apportion population biomass (> 32 inches) by geographic region (load from our repository):
+# Use Setline survey weight per unit effort to apportion population biomass (> 32 inches) by geographic region:
+# these are from Table 1 of the Apportionment chapter of the 2015 IPHC RARA Halibut stock assessment
 URL_HlbtApp <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uZFVsNHIyX3JuRlE"
 HlbtAppGet <- GET(URL_HlbtApp)
 HlbtApp1 <- content(HlbtAppGet, as='text')
 HlbtApp_df <- read.csv(file=textConnection(HlbtApp1),stringsAsFactors=FALSE)
+# or load data from local source:
 #HlbtApp_df <- read.csv("Halibut_2015Apportionment.csv", header=T)
 
 HlbtApp_df1 <- HlbtApp_df %>%
