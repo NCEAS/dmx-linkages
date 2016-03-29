@@ -81,6 +81,7 @@ CoPrct <- merge(CoPrct,PollTAC_df,all.x=T)           # Pollock quota (TAC)
 CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)# Copepod biomass - May (Seward Line)
 CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)# Euphausid biomass - May (Seward Line)
 CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)               # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
+CoPrct <- merge(CoPrct,Cap_df,all.x=T)               # Capelin Index
 
 
 # Optional: Write data frame to a CSV
