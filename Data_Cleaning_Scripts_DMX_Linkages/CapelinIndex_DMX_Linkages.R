@@ -24,4 +24,4 @@ library(stringr)
 URL_Cap <- "https://drive.google.com/uc?export=download&id=0B1XbkXxdfD7uaC1Ta0VyeW9oX0k"
 CapGet <- GET(URL_Cap)
 Cap1 <- content(CapGet, as='text')
-Cap_df1 <- read.csv(file=textConnection(Cap1),stringsAsFactors=FALSE)
+Cap_df <- read.csv(file=textConnection(Cap1),stringsAsFactors=FALSE)
