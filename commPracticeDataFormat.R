@@ -64,7 +64,7 @@ CoPrct <- merge(CoPrct,AnnChl,all.x=T)               # log Chla from satellites
 CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T)       # Halibut catch data from fishery
 CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)       # Pollock catch data from fishery
 CoPrct <- merge(CoPrct,PollTAC_df,all.x=T)           # Pollock quota (TAC)
-CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)     # Copepod biomass - May (Seward Line)
+CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)# Copepod biomass - May (Seward Line)
 CoPrct <- merge(CoPrct,Arr_df,all.x=T)               # Arrowtooth adult biomass 
 CoPrct <- merge(CoPrct,HlbtBiomass_df,all.x=T)       # Halibut exploitable biomass (lbs)
 CoPrct <- merge(CoPrct,ArrFishery_df,all.x=T)        # Arrowtooth fishery data
@@ -79,8 +79,8 @@ CoPrct <- merge(CoPrct,HlbtFishery_df,all.x=T)       # Halibut catch data from f
 CoPrct <- merge(CoPrct,PollFishery_df,all.x=T)       # Pollock catch data from fishery
 CoPrct <- merge(CoPrct,PollTAC_df,all.x=T)           # Pollock quota (TAC)
 CoPrct <- merge(CoPrct,SewardLineMayCopepods,all.x=T)# Copepod biomass - May (Seward Line)
-CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)  # Euphausid biomass - May (Seward Line)
-CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)                 # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
+CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)# Euphausid biomass - May (Seward Line)
+CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)               # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
 
 
 # Optional: Write data frame to a CSV
