@@ -293,7 +293,7 @@ mod.8 <- 'logHlbtPounds ~ logHlbt + HlbtQuota_2C3A3B
 
 HlbtQuota_2C3A3B ~ logHlbt.lead1                                         # Quota is set by standing biomass in year t-1
 
-logHlbt ~ logPinkShrimp.lag6to15 +                                       # variables influencing age-0 and age-1 Halibut
+logHlbt ~ logPinkShrimp.lag6to15 + Sharks.lag6to15 +                     # variables influencing age-0 and age-1 Halibut
 logHlbt.lead1                                                            # autoregressive process
 
 '
@@ -301,15 +301,16 @@ mod.8.fit <- sem(mod.8, data=CPrHlbtLags4)
 summary(mod.8.fit, stand=T, rsq=T)
 
 # model min test statistic is improved, however p-val is still not significant, despite highly significant p values and high R^2 for each regression parameter
-# suggests another link (pathway) is still missing
-# why is halibut harvest negatively related to halibut biomass?
+# suggests another link (pathway) is still missing??
+# why are there negative coefficients for halibut biomass ~ harvest and lagged shrimp?
 
-# lavaan (0.5-20) converged normally after  46 iterations
+
+# lavaan (0.5-20) converged normally after  42 iterations
 # Number of observations                             8
 # Estimator                                         ML
-# Minimum Function Test Statistic               12.940
-# Degrees of freedom                                 4
-# P-value (Chi-square)                           0.012
+# Minimum Function Test Statistic               42.591
+# Degrees of freedom                                 6
+# P-value (Chi-square)                           0.000
 
 # Regressions:
 #                    Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
@@ -319,17 +320,18 @@ summary(mod.8.fit, stand=T, rsq=T)
 # HlbtQuota_2C3A3B ~                                                      
 #   logHlbt.lead1       0.854    0.184    4.637    0.000    0.854    0.854
 # logHlbt ~                                                               
-#   lgPnkShrmp.615     -0.463    0.130   -3.549    0.000   -0.463   -0.463
-#   logHlbt.lead1       0.546    0.130    4.192    0.000    0.546    0.546
+#   lgPnkShrmp.615     -0.343    0.110   -3.101    0.002   -0.343   -0.343
+#   Sharks.lag6t15     -0.226    0.093   -2.432    0.015   -0.226   -0.226
+#   logHlbt.lead1       0.456    0.106    4.311    0.000    0.456    0.456
 
 # Variances:
 #                Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
 # logHlbtPounds     0.027    0.014    2.000    0.046    0.027    0.022
 # HlbtQut_2C3A3B    0.237    0.119    2.000    0.046    0.237    0.271
-# logHlbt           0.017    0.009    2.000    0.046    0.017    0.020
+# logHlbt           0.010    0.005    2.000    0.046    0.010    0.011
 
 # R-Square:
 #                Estimate
 # logHlbtPounds     0.978
 # HlbtQut_2C3A3B    0.729
-# logHlbt           0.980
+# logHlbt           0.989
