@@ -63,18 +63,21 @@ CPrHlbtLags = CPrHlbt %>%
          
          logPinkShrimp.lag6 = lag(logPinkShrimp, n = 6),
          logPinkShrimp.lag6to15 = rollapply(data = logPinkShrimp.lag6, width = 10, FUN = mean, 
-                                            align = "right", fill = NA, na.rm = T)) %>% # find mean of logPinkShrimp over lags 6-15
+                                            align = "right", fill = NA, na.rm = T), # find mean of logPinkShrimp over lags 6-15
          
          # Cannot use shark data, time series begins in 1998, therefore there is insufficient data to create lagged time series
          #Sharks.lag6 = lag(SharkAbund, n = 6),
          #Sharks.lag6to15 = rollapply(data = Sharks.lag6, width = 10, FUN = mean, 
-                                     #align = "right", fill = NA, na.rm = T)) %>% # find mean of Shark Abundance over lags 6-15
-         
+                                     #align = "right", fill = NA, na.rm = T), # find mean of Shark Abundance over lags 6-15
+  
+         logHlbt.lead1 = lead(logHlbt, n = 1)) %>% # create autoregressive term (lag -1) for Halibut biomass
+  
          select(Year, ENSO.lag7to16, NPGO.lag7to16, logCrab, logCrab.lag6to15, 
                 logPlckAdults, logPinkShrimp.lag6to15, #Sharks.lag6to15, 
-                logHlbt, logHlbtPounds, hlbt_real_rev, hlbt_vessels, hlbt_processors)
+                logHlbt, logHlbt.lead1, logHlbtPounds, hlbt_real_rev, hlbt_vessels, hlbt_processors)
 
 View(CPrHlbtLags)
+rm(CPrHlbtLags)
 
 # Important: data do not exist to calculate lagged variables before 1991 (ie first year for which lag 7to16 data can be used is 1991)
 
@@ -110,6 +113,7 @@ logPlckAdults
 logPinkShrimp, lagged to juveniles
 SharkAbund, lagged to juveniles    
 logHlbt 
+autoregressive process for Halibut (lag-1)
 logHlbtPounds
 hlbt_real_rev
 hlbt_vessels
@@ -155,3 +159,45 @@ summary(mod.2.fit, stand=T, rsq=T)
 # Minimum Function Test Statistic               26.745
 # Degrees of freedom                                 4
 # P-value (Chi-square)                           0.000
+
+
+
+# add autoregressive process (lag-1) for Halibut
+mod.3 <- 'logHlbtPounds ~ logHlbt
+
+logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +  # variables influencing age-0 and age-1 Halibut
+logCrab + logPlckAdults + # variables influencing adult Halibut 
+logHlbt.lead1 # autoregressive process
+
+'
+mod.3.fit <- sem(mod.3, data=CPrHlbtLags2)
+summary(mod.3.fit, stand=T, rsq=T)
+# still a bad model fit
+# lavaan (0.5-20) converged normally after  71 iterations
+# Number of observations                            18
+# Estimator                                         ML
+# Minimum Function Test Statistic               41.543
+# Degrees of freedom                                 6
+# P-value (Chi-square)                           0.000
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logHlbtPounds ~                                                       
+#   logHlbt           0.422    0.214    1.973    0.048    0.422    0.422
+# logHlbt ~                                                             
+#   NPGO.lag7to16     0.027    0.044    0.618    0.537    0.027    0.027
+#   logCrab.lg6t15   -0.000    0.055   -0.003    0.998   -0.000   -0.000
+#   lgPnkShrmp.615   -0.211    0.074   -2.852    0.004   -0.211   -0.211
+#   logCrab           0.049    0.027    1.822    0.068    0.049    0.049
+#   logPlckAdults     0.017    0.029    0.576    0.564    0.017    0.017
+#   logHlbt.lead1     0.863    0.067   12.808    0.000    0.863    0.863
+
+# Variances:
+#                Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logHlbtPounds     0.776    0.259    3.000    0.003    0.776    0.822
+# logHlbt           0.004    0.001    3.000    0.003    0.004    0.004
+
+# R-Square:
+#                Estimate
+# logHlbtPounds     0.178
+# logHlbt           0.996
