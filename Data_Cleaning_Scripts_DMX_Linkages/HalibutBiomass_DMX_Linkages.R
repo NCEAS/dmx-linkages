@@ -32,7 +32,7 @@ Hlbt_df <- read.csv(file=textConnection(Hlbt1),stringsAsFactors=FALSE)
 
 HlbtPop_df1 <- Hlbt_df %>%
   mutate(HlbtExploitable_RndWt_Mlbs = ExploitableBiomass/0.75) %>% # reported weights are 75% of round weight (ie head & guts removed); this line scales our data to 100% round weight
-  mutate(HlbtExploitable_RndWt_lbs = HlbtExploitable_RndWt_Mlbs*1000000) %>% # this line scales our data to millions of lbs
+  mutate(HlbtExploitable_RndWt_lbs = HlbtExploitable_RndWt_Mlbs*1000000) %>% # this line scales our data to lbs
   select(Year, HlbtExploitable_RndWt_lbs)
 
 
