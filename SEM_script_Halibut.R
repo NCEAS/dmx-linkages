@@ -86,7 +86,7 @@ CPrHlbtLags1 <- CPrHlbtLags %>%
 
 
 # look at correlations
-pairs.panels(CPrHlbtLags1 [,c(2:12)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrHlbtLags1 [,c(2:13)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 # significant correlations (for variables in the same regressions within the model):
 # ENSO.lag7to16, NPGO.lag7to16
 # logPinkShrimp.lag6to15, logCrab.lag6to15
@@ -162,6 +162,8 @@ logHlbt.lead1                                                            # autor
 mod.3.fit <- sem(mod.3, data=CPrHlbtLags2)
 summary(mod.3.fit, stand=T, rsq=T)
 # still a bad model fit
+modindices(mod.3.fit)
+# note large mod indices for logHlbtPounds ~ lagged NPGO, lagged crab, lagged shrimp, & AR term for halibut
 
 
 
