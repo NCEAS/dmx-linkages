@@ -76,9 +76,6 @@ CPrHlbtLags = CPrHlbt %>%
                 logPlckAdults, logPinkShrimp.lag6to15, #Sharks.lag6to15, 
                 logHlbt, logHlbt.lead1, logHlbtPounds, hlbt_real_rev, hlbt_vessels, hlbt_processors)
 
-View(CPrHlbtLags)
-rm(CPrHlbtLags)
-
 # Important: data do not exist to calculate lagged variables before 1991 (ie first year for which lag 7to16 data can be used is 1991)
 
 
@@ -120,20 +117,17 @@ hlbt_vessels
 hlbt_processors
 
 
+
+
 mod.1 <- 'logHlbtPounds ~ logHlbt
 
-logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +  # variables influencing age-0 and age-1 Halibut
-logCrab + logPlckAdults # variables influencing adult Halibut 
+logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +     # variables influencing age-0 and age-1 Halibut
+logCrab + logPlckAdults                                                   # variables influencing adult Halibut 
 
 '
 mod.1.fit <- sem(mod.1, data=CPrHlbtLags2)
 summary(mod.1.fit, stand=T, rsq=T)
-# lavaan (0.5-20) converged normally after  35 iterations
-# Number of observations                            18
-# Estimator                                         ML
-# Minimum Function Test Statistic               33.885
-# Degrees of freedom                                 5
-# P-value (Chi-square)                           0.000
+# poor model fit
 
 # adult Halibut ~ adult pollock is a poor fit (p = 0.71)
 # therefore remove it from next model
@@ -141,10 +135,11 @@ summary(mod.1.fit, stand=T, rsq=T)
 
 
 
+
 mod.2 <- 'logHlbtPounds ~ logHlbt
 
-logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +  # variables influencing age-0 and age-1 Halibut
-logCrab # variables influencing adult Halibut 
+logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +    # variables influencing age-0 and age-1 Halibut
+logCrab                                                                  # variables influencing adult Halibut 
 
 '
 mod.2.fit <- sem(mod.2, data=CPrHlbtLags2)
@@ -153,49 +148,109 @@ summary(mod.2.fit, stand=T, rsq=T)
 # model fit is still poor, although most regressions fit well except logCrab:
 # so far, suggesting that juvenile survival is more important than adult survival
 
-# lavaan (0.5-20) converged normally after  22 iterations
-# Number of observations                            18
-# Estimator                                         ML
-# Minimum Function Test Statistic               26.745
-# Degrees of freedom                                 4
-# P-value (Chi-square)                           0.000
 
 
 
 # add autoregressive process (lag-1) for Halibut
 mod.3 <- 'logHlbtPounds ~ logHlbt
 
-logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +  # variables influencing age-0 and age-1 Halibut
-logCrab + logPlckAdults + # variables influencing adult Halibut 
-logHlbt.lead1 # autoregressive process
+logHlbt ~ NPGO.lag7to16 + logCrab.lag6to15 + logPinkShrimp.lag6to15 +    # variables influencing age-0 and age-1 Halibut
+logCrab + logPlckAdults +                                                # variables influencing adult Halibut 
+logHlbt.lead1                                                            # autoregressive process
 
 '
 mod.3.fit <- sem(mod.3, data=CPrHlbtLags2)
 summary(mod.3.fit, stand=T, rsq=T)
 # still a bad model fit
-# lavaan (0.5-20) converged normally after  71 iterations
+
+
+
+
+# remove logHlbt ~ lagged Crab
+mod.4 <- 'logHlbtPounds ~ logHlbt
+
+logHlbt ~ NPGO.lag7to16 + logPinkShrimp.lag6to15 +       # variables influencing age-0 and age-1 Halibut
+logCrab + logPlckAdults +                                # variables influencing adult Halibut 
+logHlbt.lead1                                            # autoregressive process
+
+'
+mod.4.fit <- sem(mod.4, data=CPrHlbtLags2)
+summary(mod.4.fit, stand=T, rsq=T)
+
+# still a poor fit, although min. test statistic is improved
+
+
+
+
+# remove logHlbt ~ Adult pollock
+mod.5 <- 'logHlbtPounds ~ logHlbt
+
+logHlbt ~ NPGO.lag7to16 + logPinkShrimp.lag6to15 +       # variables influencing age-0 and age-1 Halibut
+logCrab +                                                # variables influencing adult Halibut 
+logHlbt.lead1                                            # autoregressive process
+
+'
+mod.5.fit <- sem(mod.5, data=CPrHlbtLags2)
+summary(mod.5.fit, stand=T, rsq=T)
+
+# still a poor fit, although min. test statistic is improved
+
+
+
+
+# remove logHlbt ~ lagged NPGO
+mod.6 <- 'logHlbtPounds ~ logHlbt
+
+logHlbt ~ logPinkShrimp.lag6to15 +              # variables influencing age-0 and age-1 Halibut
+logCrab +                                       # variables influencing adult Halibut 
+logHlbt.lead1                                   # autoregressive process
+
+'
+mod.6.fit <- sem(mod.6, data=CPrHlbtLags2)
+summary(mod.6.fit, stand=T, rsq=T)
+# still a poor fit; improvement in min. test statistic is <2 (ie not meaningful)
+
+
+
+
+# remove logHlbt ~ logCrab
+mod.7 <- 'logHlbtPounds ~ logHlbt
+
+logHlbt ~ logPinkShrimp.lag6to15 +              # variables influencing age-0 and age-1 Halibut
+                                                # variables influencing adult Halibut 
+logHlbt.lead1                                   # autoregressive process
+
+'
+mod.7.fit <- sem(mod.7, data=CPrHlbtLags2)
+summary(mod.7.fit, stand=T, rsq=T)
+
+
+# still very poor model fit, even though p values are significant for all regressions ...
+# no meaningful improvement in min test statistic relative to mod.6
+
+# lavaan (0.5-20) converged normally after  44 iterations
 # Number of observations                            18
 # Estimator                                         ML
-# Minimum Function Test Statistic               41.543
-# Degrees of freedom                                 6
+# Minimum Function Test Statistic               17.598
+# Degrees of freedom                                 2
 # P-value (Chi-square)                           0.000
+
+# Parameter Estimates:
+# Information                                 Expected
+# Standard Errors                             Standard
 
 # Regressions:
 #                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
 # logHlbtPounds ~                                                       
 #   logHlbt           0.422    0.214    1.973    0.048    0.422    0.422
 # logHlbt ~                                                             
-#   NPGO.lag7to16     0.027    0.044    0.618    0.537    0.027    0.027
-#   logCrab.lg6t15   -0.000    0.055   -0.003    0.998   -0.000   -0.000
-#   lgPnkShrmp.615   -0.211    0.074   -2.852    0.004   -0.211   -0.211
-#   logCrab           0.049    0.027    1.822    0.068    0.049    0.049
-#   logPlckAdults     0.017    0.029    0.576    0.564    0.017    0.017
-#   logHlbt.lead1     0.863    0.067   12.808    0.000    0.863    0.863
+#   lgPnkShrmp.615   -0.194    0.030   -6.485    0.000   -0.194   -0.194
+#   logHlbt.lead1     0.828    0.030   27.647    0.000    0.828    0.828
 
 # Variances:
-#                Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
-# logHlbtPounds     0.776    0.259    3.000    0.003    0.776    0.822
-# logHlbt           0.004    0.001    3.000    0.003    0.004    0.004
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+#   logHlbtPounds     0.776    0.259    3.000    0.003    0.776    0.822
+#   logHlbt           0.004    0.001    3.000    0.003    0.004    0.004
 
 # R-Square:
 #                Estimate
