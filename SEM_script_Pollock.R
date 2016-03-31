@@ -8,6 +8,8 @@
 library(plyr)
 library(dplyr)
 library(car)
+library(zoo)
+library(psych)
 library(lavaan)
 library(AICcmodavg)
 
@@ -21,39 +23,36 @@ head(CPrD)
 
 
 # log-transform and rename some variables:
-CPrD1 <- CPrD %>%
-  mutate(logEuphausiids = log(SewardLineMayEuphausiids)) %>%
-  mutate(logCopepods = log(SewardLineMayCopepods)) %>%
-  mutate(logPinkShrimp = log(Pink_Shrimp)) %>%
-  mutate(logCapelin = log(Capelin)) %>%
-  mutate(logStellerAdult = log(SSLnonPup_anul_mn)) %>%
-  mutate(logPlckRecruits = log(Poll_Age1_recruits_millions*1000000)) %>%
-  mutate(logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons*1000)) %>%
-  mutate(logPlckSSBMinus1Yr = log(Poll_FemSpawningBiomass_Thousands_Minus1Yr*1000)) %>%
-  mutate(logArrAdult = log(ArrAdult)) %>%
-  mutate(logPCodFem = log(PCod_female_Bmss_t)) %>%
-  mutate(logPCodRecruits = log(PCod_Age1_millions*1000000)) %>%
-  mutate(logPlckTons = log(plck_tons)) %>%
-  mutate(logPlckVessels = log(plck_vessels)) %>%
-  mutate(logPlckTAC = log(PollockTAC_tons)) %>%
-  mutate(logHlbtPounds = log(hlbt_pounds)) %>%
-  mutate(logArrTons = log(arth_tons)) %>%
-  mutate(logArrRev = log(arth_real_rev)) %>%
-  mutate(logArrVessels = log(arth_vessels)) %>%
-  mutate(logArrProcess = log(arth_processors)) %>%
-  mutate(logArrPrice = log(arth_real_price)) %>%
-  rename(SLPress = SeaLevelPressure_mean_hPa, WindDirAn = WndDir_degT_AnnMn, WindSpAn = WndSp_m_s_AnnMn, 
-         WindDirWin = WndDir_degT_Winter, WindSpWin = WndSp_m_s_Winter, ENSO = ENSO_anul_mn, NPGO = NPGO_anul_mn,
-         PDO = PDO_anul_mn, UpwellAnom = UpWelAnom_anul_mn, Ekman = EKE_ann_max_mean, WTemp = WTemp_C_AnnMn, 
-         logAnnChl = AnnChl, PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, SharkAbund = SharkAbundIPHC, 
+CPrPlck <- CPrD %>%
+  mutate(logEuphausiids = log(SewardLineMayEuphausiids),
+         logCopepods = log(SewardLineMayCopepods),
+         logPinkShrimp = log(Pink_Shrimp),
+         logPlckRecruits = log(Poll_Age1_recruits_millions*1000000),
+         logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons*1000),
+         logPlckSSB = log(Poll_FemaleSpawningBmss_1000Tons*1000),
+         logArrAdult = log(ArrAdult),
+         logPCodFem = log(PCod_female_Bmss_t),
+         logHlbt = log(Hlbt_GoAExploitable_lbs),
+         logPlckTons = log(plck_tons),
+         logPlckVessels = log(plck_vessels),
+         logPlckTAC = log(PollockTAC_tons)) %>%
+  rename(NPGO = NPGO_anul_mn,
+         PDO = PDO_anul_mn, 
+         WTemp = WTemp_C_AnnMn, 
+         logAnnChl = AnnChl,
          PlckPrice = plck_real_price_SAFE) %>%
-  select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp, -Poll_Age1_recruits_millions,
-         -Poll_FemSpawningBiomass_Thousands_Minus1Yr, -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, 
-         -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons, -plck_vessels, -PollockTAC_tons,
-         -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
-         -SSLnonPup_anul_mn)
-names(CPrD1)
+  select(Year, NPGO, PDO, WTemp, logAnnChl, logEuphausiids, logCopepods, logPinkShrimp, 
+         logPlckRecruits, logPlckAdults, logPlckSSB, logArrAdult, logPCodFem, logHlbt, 
+         logPlckTons, logPlckVessels, PlckPrice, logPlckTAC)
+names(CPrPlck)
 
+
+# lag some time series:
+CPrPlckLags = CPrPlck %>%
+  mutate(logEuphausiids.lag1 = lag(logEuphausiids, n = 1), # lag Euphausiid data to year t-1, because these are predominantly Furcillia, not adults
+         logPlckSSB.lag1 = lag(logPlckSSB, n = 1), # lag Female SSB to year t-1
+         logPlckAdults.lead1 = lead(logPlckAdults, n = 1)) %>% # create autoregressive term (lag-1) for Adult Pollock biomass
+  select(-logPlckSSB)
 
 
 #############################################
@@ -61,40 +60,37 @@ names(CPrD1)
 # (using data for all years in the dataframe)
 #############################################
 
-recruits <- CPrD$Poll_Age1_recruits_millions*1000000
-spawners <- CPrD$Poll_FemSpawningBiomass_Thousands_Minus1Yr*1000
+recruits <- CPrPlckLags$logPlckRecruits
+spawners <- CPrPlckLags$logPlckSSB.lag1
 
 # take residuals of log (R/S) ~ log(S)
 plot(log(recruits/spawners) ~ log(spawners), pch=16, cex=2.5)
 regLine(lm(log(recruits/spawners) ~ log(spawners)), col="red")
 sr.model <- lm(log(recruits/spawners) ~ log(spawners))
-summary(sr.model) # p-value: 0.011, R2 = 0.17, F=7.185, df=35
-srResidPlckLog <- sr.model$residuals # these are log values
-srResidPlckRaw <- exp(sr.model$residuals) # also create column of raw stock-recruit residuals
+summary(sr.model)
+# Multiple R-squared:  0.4089,	Adjusted R-squared:  0.392 
+# F-statistic: 24.21 on 1 and 35 DF,  p-value: 2.042e-05
+SRresidPlck <- exp(sr.model$residuals) # create column of raw stock-recruit residuals
 
 # add residuals to dataframe:
-srResiduals <- data.frame('Year'=c(1977:2013))
-srResiduals <- bind_cols(srResiduals, as.data.frame(srResidPlckLog)) # merge in log stock-recruit residuals
-srResiduals <- bind_cols(srResiduals, as.data.frame(srResidPlckRaw)) # merge in raw stock-recruit residuals
-CPrD1 <- merge(CPrD1, srResiduals, all.x=T)
-#write.csv(CPrD1, "CoPrctTemp.csv", row.names = FALSE)
+srResiduals <- data.frame('Year'=c(1978:2014))
+#srResiduals <- bind_cols(srResiduals, as.data.frame(logSRresidPlck)) # merge in log stock-recruit residuals
+srResiduals <- bind_cols(srResiduals, as.data.frame(SRresidPlck)) # merge in raw stock-recruit residuals
+CPrPlckLags <- merge(CPrPlckLags, srResiduals, all.x=T)
 
 # plot Stock-Recruit Residuals over time:
-plot(srResiduals$srResidPlckLog ~ srResiduals$Year, pch=16, cex=2.5, type="b", ylab="Pollock Residuals of log(R/S) ~ log(S)", xlab="Year")
+plot(srResiduals$SRresidPlck ~ srResiduals$Year, pch=16, cex=2.5, type="b", ylab="Residuals of Pollock log(R/S) ~ log(S)", xlab="Year")
 
 
-# create column of recruit residuals, summed for lags 2-7 (to give sum of recruit residuals for recruitment years for a given year's ages 3-8, 
+# create column of recruit residuals, summed for lags 2-7
+# (to give sum of recruit residuals for recruitment years for a given year's ages 3-8, 
 # which seems to represent most of the population in any given year)
-# did this in Excel (how to do in R???)
-# load table here:
-CPrD2 <- read.csv("CoPrctTemp.csv", header=T)
-head(CPrD2)
-
-
-CPrD3 <- CPrD2 %>%
-  mutate(logPlckRecruitSums = log(PlckSummedSrResidLag2to7)) %>% # log the summed residuals
-  select(-srResidPlckRaw, -PlckSummedSrResidLag2to7)
-
+CPrPlckLags1 <- CPrPlckLags %>%
+  mutate(SRresidPlck.lag2 = lag(SRresidPlck, n = 2),
+         SRresidPlck.lag2to7 = rollapply(data = SRresidPlck.lag2, width = 6, FUN = sum,  # sum recruitment residuals over lags 2 to 7
+                                   align = "right", fill = NA, na.rm = T),
+         logPlckRecruitSums = log(SRresidPlck.lag2to7)) %>% # calculate log of summed residuals
+  select(-SRresidPlck.lag2, -SRresidPlck.lag2to7, -logPlckSSB.lag1)
 
 
 
@@ -104,13 +100,27 @@ CPrD3 <- CPrD2 %>%
 #############################################
 
 # select 1998 - 2010
-CPrD4 <- CPrD3 %>%
+CPrPlckLags2 <- CPrPlckLags1 %>%
   filter(Year > 1997 & Year < 2011)
+
+# look at correlations among non-fishery variables:
+pairs.panels(CPrPlckLags2[,c(2:13,18:20)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+
+# look at correlations among pollock fishery variables:
+pairs.panels(CPrPlckLags2[,c(10,14:17)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 
 
 # standardize each variable to zero mean and unit variance
-CPrD5 <- CPrD4 %>% colwise(scale)()
+CPrPlckLags3 <- CPrPlckLags2 %>% colwise(scale)()
 
+
+
+
+
+
+###################################################
+###################################################
+###################################################
 
 # model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
 mod.P1 <- 'logPlckTons ~ logPlckAdults
@@ -402,3 +412,267 @@ mod.P7.fit <- sem(mod.P7, data=CPrD5)
 summary(mod.P7.fit, stand=T, rsq=T)
 # model fit is signficantly worse
 # Pollock Adults ~ Halibut Pounds p = 0.822, std est = 0.14
+
+
+
+
+
+###################################################
+###################################################
+###################################################
+
+# Repeat analysis with autoregressive (lag-1) term for Adult Pollock:
+
+# model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
+mod.Pol1 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + SRresidPlck +                  # note that SRresidPlck is here to represent canibalism (and I use SR residuals to remove autoregressive effect ... however note the inverse equation is in SRresidPlck regression ...)
+                logEuphausiids + logPinkShrimp + logArrAdult + logPCodFem + logPlckAdults.lead1
+SRresidPlck ~ logEuphausiids + logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logEuphausiids ~ logAnnChl
+logCopepods ~ logAnnChl
+logAnnChl ~ WTemp
+WTemp ~ NPGO + PDO'
+mod.Pol1.fit <- sem(mod.Pol1, data=CPrPlckLags3) 
+summary(mod.Pol1.fit, stand=T, rsq=T)
+# warning: more observations than variables
+
+# logPlckAdults ~ SRresidPlck represents canniablism and thereore should be negative, but it's not
+# therefore remove this from next model:
+mod.Pol2 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logEuphausiids + logPinkShrimp + logArrAdult + logPCodFem + logPlckAdults.lead1
+SRresidPlck ~ logEuphausiids + logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logEuphausiids ~ logAnnChl
+logCopepods ~ logAnnChl
+logAnnChl ~ WTemp
+WTemp ~ NPGO + PDO'
+mod.Pol2.fit <- sem(mod.Pol2, data=CPrPlckLags3) 
+summary(mod.Pol2.fit, stand=T, rsq=T)
+# warning: more observations than variables
+
+
+# p-vals are insignificant for (logPlckAdults ~ logPCodFem) and (logPlckAdults ~ logArrAdult)
+# remove these:
+mod.Pol3 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logEuphausiids + logPinkShrimp + logPlckAdults.lead1
+SRresidPlck ~ logEuphausiids + logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logEuphausiids ~ logAnnChl
+logCopepods ~ logAnnChl
+logAnnChl ~ WTemp
+WTemp ~ NPGO + PDO'
+mod.Pol3.fit <- sem(mod.Pol3, data=CPrPlckLags3) 
+summary(mod.Pol3.fit, stand=T, rsq=T)
+# warning: more observations than variables
+
+
+# p-val is insignificant for logPlckAdults ~ logPinkShrimp
+# therefore remove this:
+mod.Pol4 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logEuphausiids + logPlckAdults.lead1
+SRresidPlck ~ logEuphausiids + logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logEuphausiids ~ logAnnChl
+logCopepods ~ logAnnChl
+logAnnChl ~ WTemp
+WTemp ~ NPGO + PDO'
+mod.Pol4.fit <- sem(mod.Pol4, data=CPrPlckLags3) 
+summary(mod.Pol4.fit, stand=T, rsq=T)
+
+
+# poor p-values suggest Euphausiid pathway is not important
+# check that modindices don't suggest another Euphausiid pathway
+modindices(mod.Pol4.fit)
+# logEuphausiids  ~ logPlckAdults.lead1 2.776 # Euphausiids are furcillia, not adults ... indicates pollock predation on adults in year t-1 sets Euphausiid furcillia in year t?
+
+
+# remove all Euphausiid pathways from the model:
+mod.Pol5 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logPlckAdults.lead1
+SRresidPlck ~ logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logCopepods ~ logAnnChl
+logAnnChl ~ WTemp
+WTemp ~ NPGO + PDO'
+mod.Pol5.fit <- sem(mod.Pol5, data=CPrPlckLags3) 
+summary(mod.Pol5.fit, stand=T, rsq=T)
+
+
+# given modindices(mod.Pol5.fit) and p-values for mod.4, work with Chl a and WTemp regressions:
+# indirect pathway from NPGO to Copepods, via WTemp and Chl a is not significant
+# remove logCopepods ~ logAnnChl
+# add logCopepods ~ PDO
+# remove WTemp ~ PDO (not significant)
+
+mod.Pol5 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logPlckAdults.lead1
+SRresidPlck ~ logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logCopepods ~ PDO
+logAnnChl ~ WTemp
+WTemp ~ NPGO'
+mod.Pol5.fit <- sem(mod.Pol5, data=CPrPlckLags3) 
+summary(mod.Pol5.fit, stand=T, rsq=T)
+ 
+modindices(mod.Pol5.fit)
+
+# given modindices(mod.Pol5.fit) and p-values for mod.4, work with Chl a and WTemp regressions:
+# although WTemp ~ NPGO  is significant, pathway from NPGO to Chl a (logAnnChl ~ WTemp) is not significant
+#  logCopepods ~~           logAnnChl 4.016
+# logAnnChl  ~                NPGO 5.414
+# logAnnChl  ~                 PDO 2.654
+
+
+mod.Pol6 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logPlckAdults.lead1
+SRresidPlck ~ logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logCopepods ~ PDO
+logAnnChl ~ NPGO + PDO
+WTemp ~ NPGO
+
+'
+mod.Pol6.fit <- sem(mod.Pol6, data=CPrPlckLags3) 
+summary(mod.Pol6.fit, stand=T, rsq=T)
+
+
+# logAnnChl ~ PDO is not significant; remove it:
+mod.Pol7 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logPlckAdults.lead1
+SRresidPlck ~ logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logCopepods ~ PDO
+logAnnChl ~ NPGO
+WTemp ~ NPGO
+
+'
+mod.Pol7.fit <- sem(mod.Pol7, data=CPrPlckLags3) 
+summary(mod.Pol7.fit, stand=T, rsq=T)
+
+# lavaan (0.5-20) converged normally after  32 iterations
+# Number of observations                            13
+# Estimator                                         ML
+# Minimum Function Test Statistic              150.354
+# Degrees of freedom                                43
+# P-value (Chi-square)                           0.000
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons ~                                                         
+#   logPlckTAC        1.078    0.046   23.283    0.000    1.078    0.953
+# logPlckTAC ~                                                          
+#   lgPlckAdlts.l1   -0.592    0.224   -2.645    0.008   -0.592   -0.592
+# logPlckAdults ~                                                       
+#   logPlckRcrtSms    0.339    0.174    1.945    0.052    0.339    0.339
+#   lgPlckAdlts.l1    0.778    0.174    4.471    0.000    0.778    0.778
+# SRresidPlck ~                                                         
+#   logCopepods      -0.203    0.111   -1.831    0.067   -0.203   -0.157
+#   logAnnChl         0.654    0.123    5.315    0.000    0.654    0.505
+#   WTemp             0.322    0.116    2.784    0.005    0.322    0.249
+#   logPlckAdults     0.184    0.122    1.513    0.130    0.184    0.142
+#   logArrAdult       0.665    0.117    5.670    0.000    0.665    0.514
+# logCopepods ~                                                         
+#   PDO               0.687    0.202    3.410    0.001    0.687    0.687
+# logAnnChl ~                                                           
+#   NPGO              0.661    0.208    3.174    0.002    0.661    0.661
+# WTemp ~                                                               
+#   NPGO             -0.488    0.242   -2.017    0.044   -0.488   -0.488
+
+# Covariances:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons ~~                                                        
+#   SRresidPlck      -0.251    0.104   -2.413    0.016   -0.251   -0.900
+
+# Variances:
+#                Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons       0.108    0.042    2.550    0.011    0.108    0.091
+# logPlckTAC        0.600    0.235    2.550    0.011    0.600    0.650
+# logPlckAdults     0.351    0.137    2.550    0.011    0.351    0.380
+# SRresidPlck       0.721    0.283    2.550    0.011    0.721    0.467
+# logCopepods       0.487    0.191    2.550    0.011    0.487    0.528
+# logAnnChl         0.520    0.204    2.550    0.011    0.520    0.563
+# WTemp             0.703    0.276    2.550    0.011    0.703    0.762
+
+# R-Square:
+#                Estimate
+# logPlckTons       0.909
+# logPlckTAC        0.350
+# logPlckAdults     0.620
+# SRresidPlck       0.533
+# logCopepods       0.472
+# logAnnChl         0.437
+# WTemp             0.238
+
+
+
+# add Halibut predation to Adult Pollock regression:
+mod.Pol8 <- 'logPlckTons ~ logPlckTAC
+logPlckTAC ~ logPlckAdults.lead1
+logPlckAdults ~ logPlckRecruitSums + logPlckAdults.lead1 + logHlbt
+SRresidPlck ~ logCopepods + logAnnChl + WTemp + logPlckAdults + logArrAdult
+logCopepods ~ PDO
+logAnnChl ~ NPGO
+WTemp ~ NPGO
+
+'
+mod.Pol8.fit <- sem(mod.Pol8, data=CPrPlckLags3) 
+summary(mod.Pol8.fit, stand=T, rsq=T)
+
+# logPlckAdults ~ logHlbt is almost significant (p = 0.051) and the coefficient is strong and has the correct sign (negative), 
+# but why is the overall model fit so much worse???
+# lavaan (0.5-20) converged normally after  36 iterations
+
+# Number of observations                            13
+# Estimator                                         ML
+# Minimum Function Test Statistic              550.797
+# Degrees of freedom                                49
+# P-value (Chi-square)                           0.000
+
+# Regressions:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons ~                                                         
+#   logPlckTAC        1.078    0.046   23.384    0.000    1.078    0.953
+# logPlckTAC ~                                                          
+#   lgPlckAdlts.l1   -0.592    0.224   -2.645    0.008   -0.592   -0.592
+# logPlckAdults ~                                                       
+#   logPlckRcrtSms    0.699    0.240    2.912    0.004    0.699    0.699
+#   lgPlckAdlts.l1    0.477    0.217    2.196    0.028    0.477    0.477
+#   logHlbt          -0.590    0.302   -1.950    0.051   -0.590   -0.590
+# SRresidPlck ~                                                         
+#   logCopepods      -0.203    0.112   -1.818    0.069   -0.203   -0.157
+#   logAnnChl         0.654    0.122    5.338    0.000    0.654    0.503
+#   WTemp             0.322    0.116    2.788    0.005    0.322    0.248
+#   logPlckAdults     0.184    0.123    1.497    0.134    0.184    0.142
+#   logArrAdult       0.665    0.121    5.496    0.000    0.665    0.512
+# logCopepods ~                                                         
+#   PDO               0.687    0.202    3.410    0.001    0.687    0.687
+# logAnnChl ~                                                           
+#   NPGO              0.661    0.208    3.174    0.002    0.661    0.661
+# WTemp ~                                                               
+#   NPGO             -0.488    0.242   -2.017    0.044   -0.488   -0.488
+
+# Covariances:
+#                  Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons ~~                                                        
+#   SRresidPlck      -0.251    0.104   -2.413    0.016   -0.251   -0.900
+
+# Variances:
+#                Estimate  Std.Err  Z-value  P(>|z|)   Std.lv  Std.all
+# logPlckTons       0.108    0.042    2.550    0.011    0.108    0.091
+# logPlckTAC        0.600    0.235    2.550    0.011    0.600    0.650
+# logPlckAdults     0.271    0.106    2.550    0.011    0.271    0.294
+# SRresidPlck       0.721    0.283    2.550    0.011    0.721    0.463
+# logCopepods       0.487    0.191    2.550    0.011    0.487    0.528
+# logAnnChl         0.520    0.204    2.550    0.011    0.520    0.563
+# WTemp             0.703    0.276    2.550    0.011    0.703    0.762
+
+# R-Square:
+#                Estimate
+# logPlckTons       0.909
+# logPlckTAC        0.350
+# logPlckAdults     0.706
+# SRresidPlck       0.537
+# logCopepods       0.472
+# logAnnChl         0.437
+# WTemp             0.238

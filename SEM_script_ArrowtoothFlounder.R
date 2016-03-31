@@ -9,6 +9,7 @@ library(plyr)
 library(dplyr)
 library(lavaan)
 library(AICcmodavg)
+library(psych)
 
 # call the data assembly script
 #source("commPracticeDataFormat.R")
@@ -22,36 +23,33 @@ head(CPrD)
 CPrD1 <- CPrD %>%
   filter(Year > 1997 & Year < 2011)
 
+
 # log-transform and rename some variables:
 CPrD2 <- CPrD1 %>%
-  mutate(logEuphausiids = log(SewardLineMayEuphausiids)) %>%
-  mutate(logCopepods = log(SewardLineMayCopepods)) %>%
-  mutate(logPinkShrimp = log(Pink_Shrimp)) %>%
-  mutate(logCapelin = log(Capelin)) %>%
-  mutate(logStellerAdult = log(SSLnonPup_anul_mn)) %>%
-  mutate(logPlckRecruits = log(Poll_Age1_recruits_millions)) %>%
-  mutate(logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons)) %>%
-  mutate(logArrAdult = log(ArrAdult)) %>%
-  mutate(logPCodFem = log(PCod_female_Bmss_t)) %>%
-  mutate(logPCodRecruits = log(PCod_Age1_millions)) %>%
-  mutate(logPlckTons = log(plck_tons)) %>%
-  mutate(logPlckVessels = log(plck_vessels)) %>%
-  mutate(logHlbtPounds = log(hlbt_pounds)) %>%
-  mutate(logArrTons = log(arth_tons)) %>%
-  mutate(logArrRev = log(arth_real_rev)) %>%
-  mutate(logArrVessels = log(arth_vessels)) %>%
-  mutate(logArrProcess = log(arth_processors)) %>%
-  mutate(logArrPrice = log(arth_real_price)) %>%
-  rename(SLPress = SeaLevelPressure_mean_hPa, WindDirAn = WndDir_degT_AnnMn, WindSpAn = WndSp_m_s_AnnMn, 
-         WindDirWin = WndDir_degT_Winter, WindSpWin = WndSp_m_s_Winter, ENSO = ENSO_anul_mn, NPGO = NPGO_anul_mn,
-         PDO = PDO_anul_mn, UpwellAnom = UpWelAnom_anul_mn, Ekman = EKE_ann_max_mean, WTemp = WTemp_C_AnnMn, 
-         logAnnChl = AnnChl, PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, SharkAbund = SharkAbundIPHC, 
-         PlckPrice = plck_real_price_SAFE) %>%
-  select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp, -Poll_Age1_recruits_millions,
-         -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons, -plck_vessels,
-         -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
-         -SSLnonPup_anul_mn)
+  mutate(logEuphausiids = log(SewardLineMayEuphausiids), 
+         logPinkShrimp = log(Pink_Shrimp), 
+         logPlckRecruits = log(Poll_Age1_recruits_millions), 
+         logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons), 
+         logArrAdult = log(ArrAdult), 
+         logPlckTons = log(plck_tons), 
+         logPlckVessels = log(plck_vessels),
+         logHlbtPounds = log(hlbt_pounds),
+         logArrTons = log(arth_tons),
+         logArrRev = log(arth_real_rev),
+         logArrVessels = log(arth_vessels),
+         logArrProcess = log(arth_processors),
+         logArrPrice = log(arth_real_price)) %>%
+  rename(NPGO = NPGO_anul_mn, 
+         PDO = PDO_anul_mn, 
+         WTemp = WTemp_C_AnnMn, 
+         logAnnChl = AnnChl, 
+         Capelin = CapeDAFIndex) %>%
+  select(Year, logEuphausiids, logPinkShrimp, logPlckRecruits, logPlckAdults, logHlbt, logArrAdult, logPlckTons, logPlckVessels,
+         logHlbtPounds, logArrTons, logArrRev, logArrVessels, logArrProcess, logArrPrice, NPGO, PDO, WTemp, logAnnChl, Capelin)
 names(CPrD2)
+
+# look at correlations among Arrowtooth variables
+pairs.panels(CPrD2[,c(2:20)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 
 # standardize each variable to zero mean and unit variance
 CPrD3 <- CPrD2 %>% colwise(scale)()
@@ -63,16 +61,9 @@ CPrD3 <- CPrD2 %>% colwise(scale)()
 # see slide at: https://docs.google.com/a/noaa.gov/presentation/d/1GPMfcLRIXkg1ZEndSmMcdMFaa3IkU6Lbbs7QabwFewU/edit?usp=sharing
 #############################################
 
-# inspect raw variables
-attach(CPrD1)
-par(mfrow=c(3,5));
-hist(ENSO); hist(NPGO); hist(PDO); 
-hist(WndSp_m_s_Winter); hist(WTemp_C_AnnMn); hist(AnnChl); 
-hist(log(SewardLineMayEuphausiids)); hist(log(Capelin)); hist(log(Poll_Age1_recruits_millions)); 
-hist(log(ArrAdult)); hist(log(arth_tons)); hist(log(arth_real_rev)); 
-hist(log(arth_vessels)); hist(arth_processors); hist(arth_real_price)
-detach(CPrD1)
 
+# look at relationship between Adult Arrowtooth and Water Temperature
+plot(CPrD2$logArrAdult ~ CPrD2$WTemp, pch=16, cex=2.5)
 
 
 # Candidate models
