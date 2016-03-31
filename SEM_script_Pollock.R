@@ -35,15 +35,17 @@ CPrPlck <- CPrD %>%
          logHlbt = log(Hlbt_GoAExploitable_lbs),
          logPlckTons = log(plck_tons),
          logPlckVessels = log(plck_vessels),
-         logPlckTAC = log(PollockTAC_tons)) %>%
+         logPlckTAC = log(PollockTAC_tons))%>%
   rename(NPGO = NPGO_anul_mn,
          PDO = PDO_anul_mn, 
          WTemp = WTemp_C_AnnMn, 
          logAnnChl = AnnChl,
-         PlckPrice = plck_real_price_SAFE) %>%
+         PlckPrice = plck_real_price_SAFE,
+         PlckRev = plck_real_rev, 
+         PlckProces = plck_processors) %>%
   select(Year, NPGO, PDO, WTemp, logAnnChl, logEuphausiids, logCopepods, logPinkShrimp, 
          logPlckRecruits, logPlckAdults, logPlckSSB, logArrAdult, logPCodFem, logHlbt, 
-         logPlckTons, logPlckVessels, PlckPrice, logPlckTAC)
+         logPlckTons, logPlckVessels, PlckPrice, PlckRev, PlckProces, logPlckTAC)
 names(CPrPlck)
 
 
@@ -102,12 +104,13 @@ CPrPlckLags1 <- CPrPlckLags %>%
 # select 1998 - 2010
 CPrPlckLags2 <- CPrPlckLags1 %>%
   filter(Year > 1997 & Year < 2011)
+names(CPrPlckLags2)
 
 # look at correlations among non-fishery variables:
-pairs.panels(CPrPlckLags2[,c(2:13,18:20)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrPlckLags2[,c(2:13,20:22)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 
 # look at correlations among pollock fishery variables:
-pairs.panels(CPrPlckLags2[,c(10,14:17)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
+pairs.panels(CPrPlckLags2[,c(10,14:19)],smooth=F,density=T,ellipses=F,lm=T,digits=3,scale=T)
 
 
 # standardize each variable to zero mean and unit variance
@@ -603,6 +606,9 @@ summary(mod.Pol7.fit, stand=T, rsq=T)
 # logCopepods       0.472
 # logAnnChl         0.437
 # WTemp             0.238
+
+
+
 
 
 
