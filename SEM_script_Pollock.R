@@ -8,6 +8,8 @@
 library(plyr)
 library(dplyr)
 library(car)
+library(zoo)
+library(psych)
 library(lavaan)
 library(AICcmodavg)
 
@@ -21,39 +23,35 @@ head(CPrD)
 
 
 # log-transform and rename some variables:
-CPrD1 <- CPrD %>%
-  mutate(logEuphausiids = log(SewardLineMayEuphausiids)) %>%
-  mutate(logCopepods = log(SewardLineMayCopepods)) %>%
-  mutate(logPinkShrimp = log(Pink_Shrimp)) %>%
-  mutate(logCapelin = log(Capelin)) %>%
-  mutate(logStellerAdult = log(SSLnonPup_anul_mn)) %>%
-  mutate(logPlckRecruits = log(Poll_Age1_recruits_millions*1000000)) %>%
-  mutate(logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons*1000)) %>%
-  mutate(logPlckSSBMinus1Yr = log(Poll_FemSpawningBiomass_Thousands_Minus1Yr*1000)) %>%
-  mutate(logArrAdult = log(ArrAdult)) %>%
-  mutate(logPCodFem = log(PCod_female_Bmss_t)) %>%
-  mutate(logPCodRecruits = log(PCod_Age1_millions*1000000)) %>%
-  mutate(logPlckTons = log(plck_tons)) %>%
-  mutate(logPlckVessels = log(plck_vessels)) %>%
-  mutate(logPlckTAC = log(PollockTAC_tons)) %>%
-  mutate(logHlbtPounds = log(hlbt_pounds)) %>%
-  mutate(logArrTons = log(arth_tons)) %>%
-  mutate(logArrRev = log(arth_real_rev)) %>%
-  mutate(logArrVessels = log(arth_vessels)) %>%
-  mutate(logArrProcess = log(arth_processors)) %>%
-  mutate(logArrPrice = log(arth_real_price)) %>%
-  rename(SLPress = SeaLevelPressure_mean_hPa, WindDirAn = WndDir_degT_AnnMn, WindSpAn = WndSp_m_s_AnnMn, 
-         WindDirWin = WndDir_degT_Winter, WindSpWin = WndSp_m_s_Winter, ENSO = ENSO_anul_mn, NPGO = NPGO_anul_mn,
-         PDO = PDO_anul_mn, UpwellAnom = UpWelAnom_anul_mn, Ekman = EKE_ann_max_mean, WTemp = WTemp_C_AnnMn, 
-         logAnnChl = AnnChl, PinkSal_SSB = PWS_WildPinkSalmon_SSB_ModelOutput, SharkAbund = SharkAbundIPHC, 
+CPrPlck <- CPrD %>%
+  mutate(logEuphausiids = log(SewardLineMayEuphausiids),
+         logCopepods = log(SewardLineMayCopepods),
+         logPinkShrimp = log(Pink_Shrimp),
+         logPlckRecruits = log(Poll_Age1_recruits_millions*1000000),
+         logPlckAdults = log(Poll_Yr3plus_TtlBmss_1000Tons*1000),
+         logPlckSSB = log(Poll_FemaleSpawningBmss_1000Tons*1000),
+         logArrAdult = log(ArrAdult),
+         logPCodFem = log(PCod_female_Bmss_t),
+         logHlbt = log(Hlbt_GoAExploitable_lbs),
+         logPlckTons = log(plck_tons),
+         logPlckVessels = log(plck_vessels),
+         logPlckTAC = log(PollockTAC_tons)) %>%
+  rename(NPGO = NPGO_anul_mn,
+         PDO = PDO_anul_mn, 
+         WTemp = WTemp_C_AnnMn, 
+         logAnnChl = AnnChl,
          PlckPrice = plck_real_price_SAFE) %>%
-  select(-SewardLineMayEuphausiids, -SewardLineMayCopepods, -Pink_Shrimp, -Poll_Age1_recruits_millions,
-         -Poll_FemSpawningBiomass_Thousands_Minus1Yr, -Poll_Yr3plus_TtlBmss_1000Tons, -ArrAdult, 
-         -PCod_female_Bmss_t, -PCod_Age1_millions, -plck_tons, -plck_vessels, -PollockTAC_tons,
-         -hlbt_pounds, -arth_tons, -arth_real_rev, -arth_vessels, -arth_processors, -arth_real_price, -Capelin,
-         -SSLnonPup_anul_mn)
-names(CPrD1)
+  select(Year, NPGO, PDO, WTemp, logAnnChl, logEuphausiids, logCopepods, logPinkShrimp, 
+         logPlckRecruits, logPlckAdults, logPlckSSB, logArrAdult, logPCodFem, logHlbt, 
+         logPlckTons, logPlckVessels, PlckPrice, logPlckTAC)
+names(CPrPlck)
 
+
+# lag some time series:
+CPrPlckLags = CPrPlck %>%
+  mutate(logPlckSSB.lag1 = lag(logPlckSSB, n = 1), # lag Female SSB to year t-1
+         logPlckAdults.lead1 = lead(logPlckAdults, n = 1)) %>% # create autoregressive term (lag-1) for Adult Pollock biomass
+  select(-logPlckSSB)
 
 
 #############################################
@@ -61,40 +59,39 @@ names(CPrD1)
 # (using data for all years in the dataframe)
 #############################################
 
-recruits <- CPrD$Poll_Age1_recruits_millions*1000000
-spawners <- CPrD$Poll_FemSpawningBiomass_Thousands_Minus1Yr*1000
+recruits <- CPrPlckLags$logPlckRecruits
+spawners <- CPrPlckLags$logPlckSSB.lag1
 
 # take residuals of log (R/S) ~ log(S)
 plot(log(recruits/spawners) ~ log(spawners), pch=16, cex=2.5)
 regLine(lm(log(recruits/spawners) ~ log(spawners)), col="red")
 sr.model <- lm(log(recruits/spawners) ~ log(spawners))
 summary(sr.model) # p-value: 0.011, R2 = 0.17, F=7.185, df=35
-srResidPlckLog <- sr.model$residuals # these are log values
-srResidPlckRaw <- exp(sr.model$residuals) # also create column of raw stock-recruit residuals
+# Multiple R-squared:  0.4089,	Adjusted R-squared:  0.392 
+# F-statistic: 24.21 on 1 and 35 DF,  p-value: 2.042e-05
+logSRresidPlck <- sr.model$residuals # these are log values
+SRresidPlck <- exp(sr.model$residuals) # also create column of raw stock-recruit residuals
 
 # add residuals to dataframe:
-srResiduals <- data.frame('Year'=c(1977:2013))
-srResiduals <- bind_cols(srResiduals, as.data.frame(srResidPlckLog)) # merge in log stock-recruit residuals
-srResiduals <- bind_cols(srResiduals, as.data.frame(srResidPlckRaw)) # merge in raw stock-recruit residuals
-CPrD1 <- merge(CPrD1, srResiduals, all.x=T)
-#write.csv(CPrD1, "CoPrctTemp.csv", row.names = FALSE)
+srResiduals <- data.frame('Year'=c(1978:2014))
+#srResiduals <- bind_cols(srResiduals, as.data.frame(logSRresidPlck)) # merge in log stock-recruit residuals
+srResiduals <- bind_cols(srResiduals, as.data.frame(SRresidPlck)) # merge in raw stock-recruit residuals
+CPrPlckLags <- merge(CPrPlckLags, srResiduals, all.x=T)
+View(CPrPlckLags)
 
 # plot Stock-Recruit Residuals over time:
-plot(srResiduals$srResidPlckLog ~ srResiduals$Year, pch=16, cex=2.5, type="b", ylab="Pollock Residuals of log(R/S) ~ log(S)", xlab="Year")
+plot(srResiduals$SRresidPlck ~ srResiduals$Year, pch=16, cex=2.5, type="b", ylab="Residuals of Pollock log(R/S) ~ log(S)", xlab="Year")
 
 
-# create column of recruit residuals, summed for lags 2-7 (to give sum of recruit residuals for recruitment years for a given year's ages 3-8, 
+# create column of recruit residuals, summed for lags 2-7
+# (to give sum of recruit residuals for recruitment years for a given year's ages 3-8, 
 # which seems to represent most of the population in any given year)
-# did this in Excel (how to do in R???)
-# load table here:
-CPrD2 <- read.csv("CoPrctTemp.csv", header=T)
-head(CPrD2)
-
-
-CPrD3 <- CPrD2 %>%
-  mutate(logPlckRecruitSums = log(PlckSummedSrResidLag2to7)) %>% # log the summed residuals
-  select(-srResidPlckRaw, -PlckSummedSrResidLag2to7)
-
+CPrPlckLags1 <- CPrPlckLags %>%
+  mutate(SRresidPlck.lag2 = lag(SRresidPlck, n = 2),
+         SRresidPlck.lag2to7 = rollapply(data = SRresidPlck.lag2, width = 6, FUN = sum,  # sum recruitment residuals over lags 2 to 7
+                                   align = "right", fill = NA, na.rm = T),
+         logPlckRecruitSums = log(SRresidPlck.lag2to7)) %>% # calculate log of summed residuals
+  select(-SRresidPlck, -SRresidPlck.lag2, -SRresidPlck.lag2to7)
 
 
 
@@ -104,12 +101,17 @@ CPrD3 <- CPrD2 %>%
 #############################################
 
 # select 1998 - 2010
-CPrD4 <- CPrD3 %>%
+CPrPlckLags2 <- CPrPlckLags1 %>%
   filter(Year > 1997 & Year < 2011)
 
 
 # standardize each variable to zero mean and unit variance
-CPrD5 <- CPrD4 %>% colwise(scale)()
+CPrPlckLags3 <- CPrPlckLags2 %>% colwise(scale)()
+
+
+
+
+
 
 
 # model after removing nodes for which we have little/no data (Wind, Transport, juvenile growth & abundance)
