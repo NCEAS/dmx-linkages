@@ -111,16 +111,16 @@ Wind_Ann <- Buoys_all %>%
                   filter(WD!=99, WD!=999, WSPD!=99, WSPD!=999) %>%  # remove missing data
                   rename(Year=YYYY) %>%       # rename column for uniformity
                   group_by(Year) %>%
-                  summarise(WndDir_degT_AnnMn=mean(WD),WndSp_m_s_AnnMn=mean(WSPD)) %>%  # get means
+                  summarise(WndSp_m_s_AnnMn=mean(WSPD)) %>%  # get means
                   ungroup() %>%
-                  select(Year, WndDir_degT_AnnMn, WndSp_m_s_AnnMn) # select wind direction and speed
+                  select(Year, WndSp_m_s_AnnMn) # select wind speed
 
 Wind_Winter <- Buoys_all %>%
                      filter(WD!=99, WD!=999, WSPD!=99, WSPD!=999) %>%  # remove missing data
                      rename(Year=YYYY) %>%       # rename column for uniformity
                      filter(MM %in% c(12,1,2)) %>%
                      group_by(Year) %>%
-                     summarise(WndDir_degT_Winter=mean(WD),WndSp_m_s_Winter=mean(WSPD)) %>%  # get means
+                     summarise(WndSp_m_s_Winter=mean(WSPD)) %>%  # get means
                      ungroup() %>%
-                     select(Year, WndDir_degT_Winter, WndSp_m_s_Winter)  # select wind direction and speed
+                     select(Year, WndSp_m_s_Winter)  # select wind speed
 #
