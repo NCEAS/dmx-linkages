@@ -82,6 +82,7 @@ CoPrct <- merge(CoPrct,SewardLineMayEuphausiids,all.x=T)# Euphausid biomass - Ma
 CoPrct <- merge(CoPrct,Line8Zoop,all.x=T)               # Large copepod, euphausiid, large other zooplankton abundances (Line 8, ie Shelikof Strait)
 CoPrct <- merge(CoPrct,Cap_df,all.x=T)               # Capelin Index
 CoPrct <- merge(CoPrct,HlbtQuota_df1,all.x=T)        # Halibut commercial catch limits
+CoPrct <- merge(CoPrct,Ich_df,all.x=T)        # Ichthyoplankton (Arrowtooth, Pollock, Halibut)
 
 
 # Optional: Write data frame to a CSV
