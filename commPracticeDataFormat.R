@@ -44,7 +44,6 @@ CoPrct <- merge(CoPrct,Wind_Winter,all.x=T)          # Winter mean wind - Centra
 CoPrct <- merge(CoPrct,ENSO_annual,all.x=T)          # ENSO annual index
 CoPrct <- merge(CoPrct,npgo_annual,all.x=T)          # North Pacific Gyre Oscillation
 CoPrct <- merge(CoPrct,pdo_annual,all.x=T)           # Pacific Decadal Oscillation
-CoPrct <- merge(CoPrct,upanom,all.x=T)               # Pacific Upwelling Anomalies
 CoPrct <- merge(CoPrct,PC_df,all.x=T)                # Pacific Cod Stock Assessment
 CoPrct <- merge(CoPrct,EKE,all.x=T)                  # Eddy Kinetic Energy - Central GOA
 CoPrct <- merge(CoPrct,TCrab,all.x=T)                # Tanner Crab Abundance 
