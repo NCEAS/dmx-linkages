@@ -33,12 +33,15 @@ NPI <- npi %>%
            filter(Year %in% c(1975:2015)) %>% # selects years 1975 - 2015
            filter(!is.na(SeaLevelPressure_hPa),
                   SeaLevelPressure_hPa != -999.00) %>% # remove NA values, and -999 values which are NAs
+           filter(Month %in% c("01","02","03","11","12")) %>%
            group_by(Year) %>%
-           summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
+           summarise(SeaLevelPressure_Winter_hPa=mean(SeaLevelPressure_hPa)) %>%  # winter means
+           #summarise(SeaLevelPressure_mean_hPa=mean(SeaLevelPressure_hPa)) %>% # get annual means
            ungroup()
 #
 
 
+# Winter is Nov thru March
 
 
 
