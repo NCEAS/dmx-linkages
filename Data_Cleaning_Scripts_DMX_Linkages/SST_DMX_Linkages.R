@@ -12,6 +12,7 @@ library(curl)
 library(rvest)
 library(tidyr)
 library(stringr)
+library(lubridate)
 
 ## Steps for data cleaning: 
 ## 1) read in data
@@ -42,16 +43,19 @@ head(Temps)
 # missing_date <- filter(Temps, is.na(dateTime))  # selects data with missing dates
 # miss_cID <- unique(missing_date$cruiseID) # selects the cruise IDs for which sample info is missing
 
+gaks <- paste("GAK", 1:13, sep="")
 
 SST <- Temps %>%
-             mutate(Year=sapply((strsplit(as.character(Date), split="/")),
-                                function(x) x[3])) %>%   # creates Year column
-             arrange(dateTime) %>%
+             mutate(date = parse_date_time(Date, c('%m/%d/%Y', '%Y-%m-%d'), exact = T), # render dates into uniform format and order
+                    julianDay = yday(date), #calculate Julian Day
+                    Year=sapply((strsplit(as.character(date), split="-")), function(x) x[1]),  # create Year column
+                    Month=sapply((strsplit(as.character(date), split="-")), function(x) x[2])) %>% # create Month column
+             arrange(date) %>%
              rename(WTemp_C=temp) %>%
+             filter(station %in% gaks, # select only GAK line stations
+                    julianDay > 114, julianDay < 152) %>% # select samples collected April 25 - May 31 (inclusive)
              group_by(Year) %>%
-             summarise(WTemp_C_AnnMn=mean(WTemp_C)) %>% # get annual means
+             summarise(MayWTemp_C_AnnMn=mean(WTemp_C)) %>% # get annual means
              ungroup() %>%
-             select(Year, WTemp_C_AnnMn)  # selects columns wanted
+             select(Year, MayWTemp_C_AnnMn)  # selects columns wanted
 #
-
-
